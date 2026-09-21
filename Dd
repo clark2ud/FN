@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>evvls — dev docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080a;
+  --bg-elev: #0e0e12;
+  --bg-card: #121218;
+  --bg-hover: #181822;
+  --border: rgba(255,255,255,.06);
+  --border-hi: rgba(255,255,255,.12);
+  --text: #e8e8ec;
+  --text-dim: rgba(232,232,236,.55);
+  --text-mute: rgba(232,232,236,.35);
+  --accent: #c4b5fd;
+  --accent-dim: rgba(196,181,253,.15);
+  --green: #6ee7b7;
+  --green-dim: rgba(110,231,183,.12);
+  --amber: #fbbf24;
+  --red: #f87171;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', -apple-system, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent-dim); color: var(--accent); }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.app { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo::before { content: '>'; color: var(--accent); }
+.logo span { color: var(--accent); }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+.header-status { display: flex; align-items: center; gap: 6px; }
+.viewer-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.viewer-count::before {
+  content: '👁';
+  font-size: 10px;
+}
+
+/* views */
+.view { display: none; }
+.view.active { display: block; animation: fadeUp .35s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* selection view */
+.hero { padding: 80px 0 60px; border-bottom: 1px solid var(--border); }
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-tag::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+h1 {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -2.5px;
+  line-height: .95;
+  margin-bottom: 20px;
+}
+h1 .dim { color: var(--text-mute); }
+.hero-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+}
+.hero-meta span { display: flex; align-items: center; gap: 5px; }
+.hero-meta span::before { content: '//'; color: var(--accent); opacity: .5; }
+
+/* game grid */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 48px 0;
+}
+.game-card {
+  background: var(--bg-elev);
+  border: none;
+  padding: 32px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  transition: background .2s;
+}
+.game-card:hover { background: var(--bg-hover); }
+.game-card::after {
+  content: '→';
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  font-size: 16px;
+  color: var(--text-mute);
+  transition: all .2s;
+}
+.game-card:hover::after { color: var(--accent); transform: translateX(3px); }
+.game-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.game-card h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.5px;
+  margin-bottom: 8px;
+}
+.game-card p {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.card-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-mute);
+}
+.tag {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.tag.active { color: var(--green); border-color: rgba(110,231,183,.2); background: var(--green-dim); }
+
+/* notice */
+.notice-box {
+  margin: 32px 0;
+  padding: 16px 20px;
+  border: 1px solid rgba(196,181,253,.2);
+  background: var(--accent-dim);
+  border-radius: 8px;
+}
+.notice-box p {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  line-height: 1.8;
+}
+.notice-box a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+
+/* docs layout */
+.docs-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.back-btn:hover { color: var(--text); border-color: var(--border-hi); }
+.docs-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 1px;
+}
+
+.docs-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+  padding: 0 0 60px;
+}
+.sidebar { position: sticky; top: 24px; align-self: start; }
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-mute);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 2px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.sidebar button:hover { color: var(--text); }
+.sidebar button.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.docs-title { margin-bottom: 48px; }
+.docs-title h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -1.5px;
+  margin-bottom: 12px;
+}
+.docs-title p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+.docs-section { scroll-margin-top: 32px; margin-bottom: 64px; }
+.section-kicker {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.docs-section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.5px;
+  margin-bottom: 10px;
+}
+.section-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 32px;
+  max-width: 520px;
+}
+
+.doc-block { margin-bottom: 40px; }
+.block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.block-title { font-size: 14px; font-weight: 600; }
+.block-lang {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-mute);
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.code-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a0a0e;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+.code-dots { display: flex; gap: 5px; }
+.code-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-hi);
+}
+.code-dots span:first-child { background: rgba(248,113,113,.4); }
+.code-dots span:nth-child(2) { background: rgba(251,191,36,.4); }
+.code-dots span:last-child { background: rgba(110,231,183,.4); }
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-mute);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.copy-btn:hover { color: var(--text); border-color: var(--border-hi); }
+.copy-btn.copied { color: var(--green); border-color: rgba(110,231,183,.3); }
+pre {
+  overflow-x: auto;
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #c8c8d4;
+  tab-size: 2;
+  max-height: 400px;
+  overflow-y: auto;
+}
+pre .kw { color: var(--accent); }
+pre .str { color: var(--green); }
+pre .num { color: var(--amber); }
+pre .cm { color: var(--text-mute); font-style: italic; }
+
+.explanation {
+  margin-top: 12px;
+  padding: 16px 20px;
+  border-left: 2px solid var(--accent);
+  background: var(--bg-elev);
+  border-radius: 0 8px 8px 0;
+}
+.explanation-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.explanation p {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.explanation p:last-child { margin-bottom: 0; }
+.explanation ul { list-style: none; padding: 0; margin-top: 8px; }
+.explanation li {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-mute);
+  line-height: 1.8;
+  padding-left: 14px;
+  position: relative;
+  margin-bottom: 4px;
+}
+.explanation li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 10px;
+}
+
+footer {
+  padding: 32px 0 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+}
+
+@media (max-width: 700px) {
+  .app { padding: 0 16px; }
+  .hero { padding: 48px 0 40px; }
+  .docs-layout { grid-template-columns: 1fr; gap: 24px; }
+  .sidebar { position: static; }
+  .sidebar > div { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 6px; }
+  .sidebar-label { display: none; }
+  .sidebar button { white-space: nowrap; border-left: none; border-bottom: 2px solid var(--border); }
+  .sidebar button.active { border-bottom-color: var(--accent); }
+  .game-grid { grid-template-columns: 1fr; }
+  pre { font-size: 10.5px; padding: 12px 14px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <a class="logo" href="#" id="logo">evvls<span>.</span></a>
+  <div class="header-right">
+    <div class="header-status">
+      <div class="status-dot"></div>
+      <span>online</span>
+    </div>
+    <div class="viewer-count" id="viewer-count">—</div>
+    <span>v3.0.0</span>
+  </div>
+</header>
+
+<!-- ============ SELECTION VIEW ============ -->
+<section class="view active" id="selection">
+  <div class="hero">
+    <div class="hero-tag">DEV / DOCUMENTATION</div>
+    <h1>Pick your<br><span class="dim">poison.</span></h1>
+    <p class="hero-desc">External cheat development from zero. Every concept explained, every function implemented, no steps skipped.</p>
+    <div class="hero-meta">
+      <span>2 games</span>
+      <span>28 snippets</span>
+      <span>from scratch</span>
+    </div>
+  </div>
+
+  <div class="game-grid">
+    <button class="game-card" data-game="fortnite" type="button">
+      <div class="game-icon">C++</div>
+      <h2>Fortnite</h2>
+      <p>External cheat from absolute zero. Memory, math, bones, ESP, aim — every step explained and fully implemented.</p>
+      <div class="card-meta">
+        <span class="tag active">10 sections</span>
+        <span class="tag">c++ / dtc</span>
+      </div>
+    </button>
+
+    <button class="game-card" data-game="roblox" type="button">
+      <div class="game-icon">LUA</div>
+      <h2>Roblox</h2>
+      <p>Luau scripting fundamentals. Player systems, data persistence, and patterns that scale past one script.</p>
+      <div class="card-meta">
+        <span class="tag active">4 sections</span>
+        <span class="tag">luau / studio</span>
+      </div>
+    </button>
+  </div>
+
+  <footer>
+    <span>evvls — built by clark</span>
+    <span>sep 2026</span>
+  </footer>
+</section>
+
+<!-- ============ DOCS VIEW ============ -->
+<section class="view" id="documentation">
+  <div class="docs-top">
+    <button class="back-btn" id="back-btn" type="button">← all docs</button>
+    <span class="docs-label" id="docs-game-label">FORTNITE</span>
+  </div>
+
+  <div class="docs-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Contents</div>
+      <div id="sidebar-links"></div>
+    </aside>
+    <main class="docs-main">
+      <div class="docs-title">
+        <div class="hero-tag" id="docs-eyebrow">FORTNITE / DOCS</div>
+        <h1 id="docs-heading">Fortnite External</h1>
+        <p id="docs-description">From zero to working cheat.</p>
+      </div>
+      <div id="docs-content"></div>
+    </main>
+  </div>
+</section>
+
+</div>
+<script>
+const templates = {
+fortnite: {
+  label: "FORTNITE",
+  title: "Fortnite External",
+  description: "From zero to working cheat. Every function fully implemented.",
+  sections: [
+    {
+      id: "prereqs",
+      kicker: "01 / PREREQUISITES",
+      title: "Before You Write Code",
+      description: "Three concepts you need: memory, pointers, 3D space. Everything builds on these.",
+      blocks: [
+        {
+          title: "How Memory Works",
+          language: "concept",
+          code: `// fortnite gets a giant block of ram when it runs
+// that block is just bytes — millions of them
+
+// layout looks something like:
+[0x10000000]  game code (.exe)
+[0x20000000]  game data (players, positions, health)
+[0x30000000]  graphics (meshes, textures)
+
+// we read bytes from outside the game — that's "external"
+// 4 bytes = int or float, 8 bytes = pointer, 24 bytes = Vector3`,
+          description: "The game stores everything in RAM — positions, health, ammo. We read those bytes from a separate process using the driver. No injection, just reading.",
+          points: [
+            "every value lives at an address like 0x2A7F3C80",
+            "4 bytes = int/float, 8 bytes = pointer, 24 bytes = 3 doubles",
+            "external = read-only, the game doesn't know we exist"
+          ]
+        },
+        {
+          title: "Pointers",
+          language: "concept",
+          code: `// a pointer holds an address instead of a value
+// address 0x1000 contains 0x5000
+// address 0x5000 contains 100 (the actual value)
+
+// to read it:
+uintptr_t ptr = ClarkDtcDriver::read<uintptr_t>( 0x1000 );  // = 0x5000
+int health = ClarkDtcDriver::read<int>( ptr );               // = 100
+
+// games use chains of these because objects move around
+// base + offset → pointer → + offset → pointer → + offset → value`,
+          description: "Nothing useful stays at a fixed address. Games chain pointers: each pointer leads to the next object. Follow the chain to find any value.",
+          points: [
+            "pointer = variable holding a memory address",
+            "dereferencing = reading the address the pointer points to",
+            "chain = follow pointers step by step until you reach the value",
+            "if any pointer is 0, the chain is broken"
+          ]
+        },
+        {
+          title: "3D Coordinates",
+          language: "concept",
+          code: `// the game world is 3D space
+// every position = three numbers:
+
+// X = left/right (east/west)
+// Y = forward/back (north/south)
+// Z = up/down (height)
+
+// origin (0,0,0) = center of map
+// to aim at someone we need:
+// 1. their position (Vector3)
+// 2. our camera position (Vector3)
+// 3. the angle between (calculated later)`,
+          description: "Every object in Fortnite has an X, Y, Z position. To draw on screen we convert these 3D world coordinates to 2D pixels later.",
+          points: [
+            "X, Y, Z = three floats define any position",
+            "origin (0,0,0) = map center",
+            "we convert 3D world → 2D screen for ESP"
+          ]
+        }
+      ]
+    },
+    {
+      id: "math",
+      kicker: "02 / MATH",
+      title: "Vectors & Matrices",
+      description: "The data types for 3D math. You need these before anything else.",
+      blocks: [
+        {
+          title: "Vector2 & Vector3",
+          language: "C++",
+          code: `struct Vector2
+{
+    double x{ 0.0 };
+    double y{ 0.0 };
+
+    constexpr Vector2( ) noexcept = default;
+    constexpr Vector2( double x, double y ) noexcept
+        : x( x ), y( y )
+    {}
+};
+
+struct Vector3
+{
+    double x{ 0.0 };
+    double y{ 0.0 };
+    double z{ 0.0 };
+
+    constexpr Vector3( ) noexcept = default;
+    constexpr Vector3( double x, double y, double z ) noexcept
+        : x( x ), y( y ), z( z )
+    {}
+
+    constexpr double dot( const Vector3& o ) const noexcept
+    {
+        return x * o.x + y * o.y + z * o.z;
+    }
+
+    double distance( const Vector3& o ) const noexcept
+    {
+        return std::hypot( o.x - x, o.y - y, o.z - z );
+    }
+
+    constexpr Vector3 operator-( const Vector3& o ) const noexcept
+    {
+        return { x - o.x, y - o.y, z - o.z };
+    }
+};`,
+          description: "Vector2 = screen position (pixels). Vector3 = world position (game units). dot() projects onto axes, distance() measures gap, operator- gives direction between points.",
+          points: [
+            "Vector2: x = horizontal pixels, y = vertical pixels",
+            "Vector3: x/y/z position in 3D world space",
+            "dot(): project one vector onto another — used in w2s",
+            "distance(): how far apart two things are",
+            "operator-: direction vector from one point to another"
+          ]
+        },
+        {
+          title: "FTransform & Quaternion",
+          language: "C++",
+          code: `struct FQuat
+{
+    double x, y, z, w;
+};
+
+struct FTransform
+{
+    FQuat rotation;
+    Vector3 translation;
+    uint8_t pad1c[ 0x8 ];
+    Vector3 scale3d;
+    uint8_t pad2c[ 0x8 ];
+};`,
+          description: "FTransform = how Unreal Engine stores bone data. Rotation as quaternion (4 numbers), position as vector (3 numbers), scale as vector. Padding matches the game's exact memory layout.",
+          points: [
+            "quaternion = rotation without gimbal lock (4 values)",
+            "translation = position relative to parent bone",
+            "padding bytes align struct to match game memory exactly",
+            "sizeof(FTransform) = 0x60 = 96 bytes per bone"
+          ]
+        },
+        {
+          title: "ToMatrixWithScale",
+          language: "C++",
+          code: `D3DMATRIX ToMatrixWithScale( )
+{
+    D3DMATRIX m{};
+
+    const Vector3 Scale(
+        ( scale3d.x == 0.0 ) ? 1.0 : scale3d.x,
+        ( scale3d.y == 0.0 ) ? 1.0 : scale3d.y,
+        ( scale3d.z == 0.0 ) ? 1.0 : scale3d.z
+    );
+
+    const double x2 = rotation.x + rotation.x;
+    const double y2 = rotation.y + rotation.y;
+    const double z2 = rotation.z + rotation.z;
+    const double xx2 = rotation.x * x2;
+    const double yy2 = rotation.y * y2;
+    const double zz2 = rotation.z * z2;
+    const double yz2 = rotation.y * z2;
+    const double wx2 = rotation.w * x2;
+    const double xy2 = rotation.x * y2;
+    const double wz2 = rotation.w * z2;
+    const double xz2 = rotation.x * z2;
+    const double wy2 = rotation.w * y2;
+
+    m._41 = translation.x;
+    m._42 = translation.y;
+    m._43 = translation.z;
+    m._11 = ( 1.0f - ( yy2 + zz2 ) ) * Scale.x;
+    m._22 = ( 1.0f - ( xx2 + zz2 ) ) * Scale.y;
+    m._33 = ( 1.0f - ( xx2 + yy2 ) ) * Scale.z;
+    m._32 = ( yz2 - wx2 ) * Scale.z;
+    m._23 = ( yz2 + wx2 ) * Scale.y;
+    m._21 = ( xy2 - wz2 ) * Scale.y;
+    m._12 = ( xy2 + wz2 ) * Scale.x;
+    m._31 = ( xz2 + wy2 ) * Scale.z;
+    m._13 = ( xz2 - wy2 ) * Scale.x;
+    m._14 = 0.0f;
+    m._24 = 0.0f;
+    m._34 = 0.0f;
+    m._44 = 1.0f;
+
+    return m;
+}`,
+          description: "Converts FTransform to a 4x4 matrix. Quaternion expands to rotation components, translation goes in bottom row, scale multiplies everything. Scale of 0 becomes 1 to prevent zeroing.",
+          points: [
+            "quaternion → 3x3 rotation matrix via standard expansion",
+            "scale 0 replaced with 1 — prevents matrix collapse",
+            "translation in _41/_42/_43 = position in bottom row",
+            "result: 4x4 matrix ready for multiplication"
+          ]
+        },
+        {
+          title: "MatrixMultiplication",
+          language: "C++",
+          code: `inline D3DMATRIX MatrixMultiplication( D3DMATRIX a, D3DMATRIX b )
+{
+    D3DMATRIX out{};
+    out._11 = a._11*b._11 + a._12*b._21 + a._13*b._31 + a._14*b._41;
+    out._12 = a._11*b._12 + a._12*b._22 + a._13*b._32 + a._14*b._42;
+    out._13 = a._11*b._13 + a._12*b._23 + a._13*b._33 + a._14*b._43;
+    out._14 = a._11*b._14 + a._12*b._24 + a._13*b._34 + a._14*b._44;
+    out._21 = a._21*b._11 + a._22*b._21 + a._23*b._31 + a._24*b._41;
+    out._22 = a._21*b._12 + a._22*b._22 + a._23*b._32 + a._24*b._42;
+    out._23 = a._21*b._13 + a._22*b._23 + a._23*b._33 + a._24*b._43;
+    out._24 = a._21*b._14 + a._22*b._24 + a._23*b._34 + a._24*b._44;
+    out._31 = a._31*b._11 + a._32*b._21 + a._33*b._31 + a._34*b._41;
+    out._32 = a._31*b._12 + a._32*b._22 + a._33*b._32 + a._34*b._42;
+    out._33 = a._31*b._13 + a._32*b._23 + a._33*b._33 + a._34*b._43;
+    out._34 = a._31*b._14 + a._32*b._24 + a._33*b._34 + a._34*b._44;
+    out._41 = a._41*b._11 + a._42*b._21 + a._43*b._31 + a._44*b._41;
+    out._42 = a._41*b._12 + a._42*b._22 + a._43*b._32 + a._44*b._42;
+    out._43 = a._41*b._13 + a._42*b._23 + a._43*b._33 + a._44*b._43;
+    out._44 = a._41*b._14 + a._42*b._24 + a._43*b._34 + a._44*b._44;
+    return out;
+}`,
+          description: "Standard 4x4 matrix multiply. Each output element = row from first matrix dot column from second. Combines bone local transform with mesh world transform.",
+          points: [
+            "row × column, multiply and sum",
+            "order matters: bone first, then component_to_world",
+            "result = bone position in world coordinates"
+          ]
+        },
+        {
+          title: "Rotation Matrix from Euler",
+          language: "C++",
+          code: `inline _MATRIX Matrix( Vector3 rot, Vector3 origin = Vector3( 0,0,0 ) )
+{
+    double radPitch = ( rot.x * M_PI / 180.0 );
+    double radYaw   = ( rot.y * M_PI / 180.0 );
+    double radRoll  = ( rot.z * M_PI / 180.0 );
+
+    double SP = sin( radPitch ), CP = cos( radPitch );
+    double SY = sin( radYaw ),   CY = cos( radYaw );
+    double SR = sin( radRoll ),  CR = cos( radRoll );
+
+    _MATRIX m;
+    m.m[0][0] = CP * CY;
+    m.m[0][1] = CP * SY;
+    m.m[0][2] = SP;
+    m.m[0][3] = 0.f;
+    m.m[1][0] = SR * SP * CY - CR * SY;
+    m.m[1][1] = SR * SP * SY + CR * CY;
+    m.m[1][2] = -SR * CP;
+    m.m[1][3] = 0.f;
+    m.m[2][0] = -( CR * SP * CY + SR * SY );
+    m.m[2][1] = CY * SR - CR * SP * SY;
+    m.m[2][2] = CR * CP;
+    m.m[2][3] = 0.f;
+    m.m[3][0] = origin.x;
+    m.m[3][1] = origin.y;
+    m.m[3][2] = origin.z;
+    m.m[3][3] = 1.f;
+    return m;
+}`,
+          description: "Builds rotation matrix from euler angles (pitch/yaw/roll in degrees). Converts to radians, computes sin/cos, fills matrix. Used in PW2S for camera projection.",
+          points: [
+            "degrees → radians: multiply by π/180",
+            "each row = one axis of rotated coordinate system",
+            "pitch = up/down, yaw = left/right, roll = tilt"
+          ]
+        }
+      ]
+    },
+    {
+      id: "memory",
+      kicker: "03 / MEMORY",
+      title: "Reading Memory",
+      description: "How to read values, follow pointer chains, and cache results.",
+      blocks: [
+        {
+          title: "The Read Function",
+          language: "C++",
+          code: `// from the driver — template works for any type
+int health = ClarkDtcDriver::read<int>( 0x2A7F3C80 );
+float pos_x = ClarkDtcDriver::read<float>( 0x2A7F3C84 );
+Vector3 pos = ClarkDtcDriver::read<Vector3>( 0x2A7F3C90 );
+uintptr_t ptr = ClarkDtcDriver::read<uintptr_t>( 0x2A7F3CA0 );
+
+// type determines bytes read:
+// int/float = 4 bytes
+// double = 8 bytes
+// Vector3 = 24 bytes (3 doubles)
+// uintptr_t = 8 bytes (pointer)`,
+          description: "Template function — tell it the address and type, get the value back. Type determines how many bytes to read and how to interpret them.",
+          points: [
+            "template<T> works for any type",
+            "int/float = 4 bytes, double/pointer = 8 bytes, Vector3 = 24 bytes",
+            "reading a pointer gives another address — follow it to continue",
+            "invalid address returns zero — always check"
+          ]
+        },
+        {
+          title: "Pointer Chains",
+          language: "C++",
+          code: `// chain to reach player mesh:
+// base + GWORLD → uWorld
+// uWorld + GAME_INSTANCE → gameInstance
+// gameInstance + LOCAL_PLAYERS → localPlayers
+// localPlayers + PLAYER_CONTROLLER → playerController
+// playerController + LOCAL_PAWN → localPawn
+// localPawn + MESH → mesh
+
+uintptr_t uWorld = ClarkDtcDriver::read<uintptr_t>(
+    base_address + offsets::GWORLD );
+if ( !uWorld ) return;
+
+uintptr_t gameInstance = ClarkDtcDriver::read<uintptr_t>(
+    uWorld + offsets::GAME_INSTANCE );
+if ( !gameInstance ) return;
+
+uintptr_t localPlayers = ClarkDtcDriver::read<uintptr_t>(
+    gameInstance + offsets::LOCAL_PLAYERS );
+if ( !localPlayers ) return;
+
+uintptr_t playerController = ClarkDtcDriver::read<uintptr_t>(
+    localPlayers + offsets::PLAYER_CONTROLLER );
+if ( !playerController ) return;
+
+uintptr_t localPawn = ClarkDtcDriver::read<uintptr_t>(
+    playerController + offsets::LOCAL_PAWN );
+if ( !localPawn ) return;
+
+uintptr_t mesh = ClarkDtcDriver::read<uintptr_t>(
+    localPawn + offsets::MESH );
+if ( !mesh ) return;`,
+          description: "Follow pointers step by step. Each offset leads to the next object. Null-check every step — a broken chain means not loaded or wrong offsets.",
+          points: [
+            "base_address changes every run — everything chains from it",
+            "offsets are fixed distances — hardcoded in offsets.h",
+            "null check each step before continuing",
+            "chain breaks = game not loaded OR offsets outdated"
+          ]
+        },
+        {
+          title: "Caching",
+          language: "C++",
+          code: `// BAD: read camera for every entity
+for ( auto& e : entities )
+{
+    Camera cam = getCamera();  // 5+ reads per entity!
+    Vector2 s = PW2S( e.pos, cam );
+}
+
+// GOOD: read once, reuse
+Camera cam = getCamera();  // 5 reads total
+for ( auto& e : entities )
+{
+    Vector2 s = PW2S( e.pos, cam );  // just math
+}
+
+// cache slow-changing values
+static uintptr_t cached_bones = 0;
+static auto last_read = std::chrono::steady_clock::now();
+auto now = std::chrono::steady_clock::now();
+if ( now - last_read > std::chrono::milliseconds( 100 ) )
+{
+    cached_bones = ClarkDtcDriver::read<uintptr_t>( mesh + offsets::BONE_ARRAY );
+    last_read = now;
+}`,
+          description: "Driver calls have overhead. Read once per frame, not once per entity. Cache values that change slowly (bone arrays), don't cache values that change fast (positions).",
+          points: [
+            "minimize driver calls — they cost CPU",
+            "read camera once, use for all entities",
+            "cache bone arrays — they change rarely",
+            "don't cache positions — they update every frame"
+          ]
+        }
+      ]
+    },
+    {
+      id: "offsets",
+      kicker: "04 / OFFSETS",
+      title: "Offset Table",
+      description: "Distances between objects in memory. These change every game update.",
+      blocks: [
+        {
+          title: "offsets.h",
+          language: "C++",
+          code: `#pragma once
+#include <cstdint>
+
+class offsets
+{
+public:
+    static constexpr std::uintptr_t GWORLD = 0x1A73C8B0;
+    static constexpr std::uintptr_t GAME_INSTANCE = 0x250;
+    static constexpr std::uintptr_t LOCAL_PLAYERS = 0x38;
+    static constexpr std::uintptr_t PLAYER_CONTROLLER = 0x30;
+    static constexpr std::uintptr_t LOCAL_PAWN = 0x318;
+    static constexpr std::uintptr_t PAWN_PRIVATE = 0x2E8;
+    static constexpr std::uintptr_t ROOT_COMPONENT = 0x1B0;
+    static constexpr std::uintptr_t PLAYER_STATE = 0x290;
+    static constexpr std::uintptr_t TEAM_INDEX = 0xF31;
+    static constexpr std::uintptr_t GAME_STATE = 0x1D8;
+    static constexpr std::uintptr_t PLAYER_ARRAY = 0x288;
+    static constexpr std::uintptr_t MESH = 0x2F0;
+    static constexpr std::uintptr_t COMPONENT_TO_WORLD = 0x1E0;
+    static constexpr std::uintptr_t BONE_ARRAY = 0x648;
+    static constexpr std::uintptr_t BONE_ARRAY_CACHE = 0x658;
+};`,
+          description: "Each offset = bytes from one object to the next. GWORLD is the only one from base_address. Chain: uWorld → game instance → players → controller → pawn → mesh.",
+          points: [
+            "GWORLD: base_address → world pointer",
+            "rest chain from previous object",
+            "BONE_ARRAY_CACHE: fallback when primary is null",
+            "TEAM_INDEX: skip teammates in entity loop",
+            "outdated after every game update"
+          ]
+        }
+      ]
+    },
+    {
+      id: "camera",
+      kicker: "05 / CAMERA",
+      title: "Reading the Camera",
+      description: "Where we are and where we're looking. Needed for every projection.",
+      blocks: [
+        {
+          title: "Camera Struct",
+          language: "C++",
+          code: `struct Camera
+{
+    Vector3 location;  // where camera is in world
+    Vector3 rotation;  // pitch, yaw, roll in degrees
+    float fov;         // field of view
+};
+
+struct FNRot
+{
+    double a;  // quaternion x
+    double b;  // quaternion y
+    double c;  // quaternion z
+};`,
+          description: "Camera = position + rotation + fov. Game stores rotation as quaternion (4 values), we convert to euler angles (3 values) because they're easier to work with.",
+          points: [
+            "location: camera world position",
+            "rotation: which way we're looking (pitch/yaw)",
+            "fov: how wide the view is",
+            "quaternion → euler: easier math for projection"
+          ]
+        },
+        {
+          title: "getCamera()",
+          language: "C++",
+          code: `Camera getCamera( )
+{
+    Camera view_point{};
+
+    uintptr_t loc_ptr = ClarkDtcDriver::read<uintptr_t>(
+        cache::uWorld + 0x178 );
+    uintptr_t rot_ptr = ClarkDtcDriver::read<uintptr_t>(
+        cache::uWorld + 0x188 );
+
+    FNRot fnrot{};
+    fnrot.a = ClarkDtcDriver::read<double>( rot_ptr );
+    fnrot.b = ClarkDtcDriver::read<double>( rot_ptr + 0x20 );
+    fnrot.c = ClarkDtcDriver::read<double>( rot_ptr + 0x1D0 );
+
+    view_point.location = ClarkDtcDriver::read<Vector3>( loc_ptr );
+    view_point.rotation.x = asin( fnrot.c ) * ( 180.0 / M_PI );
+    view_point.rotation.y = ( ( atan2( fnrot.a * -1, fnrot.b )
+        * ( 180.0 / M_PI ) ) * -1 ) * -1;
+    view_point.fov = ClarkDtcDriver::read<float>(
+        cache::playerController + 0x374 ) * 90.f;
+
+    return view_point;
+}`,
+          description: "Reads camera from memory. Gets pointers to location and rotation, reads quaternion components, converts to euler angles with asin/atan2. FOV comes from player controller with ×90 multiplier.",
+          points: [
+            "loc_ptr/rot_ptr are pointers — read them, then read what they point to",
+            "asin(c) = pitch, atan2(-a, b) = yaw",
+            "×(180/π) converts radians to degrees",
+            "fov × 90 converts normalized value to degrees"
+          ]
+        }
+      ]
+    },
+    {
+      id: "w2s",
+      kicker: "06 / WORLD TO SCREEN",
+      title: "World To Screen",
+      description: "Converts 3D world position to 2D screen pixels. The core of everything visual.",
+      blocks: [
+        {
+          title: "PW2S()",
+          language: "C++",
+          code: `Vector2 PW2S( Vector3 world_location )
+{
+    cache::localCamera = getCamera( );
+    _MATRIX temp_matrix = Matrix( cache::localCamera.rotation );
+
+    auto vaxisx = Vector3( temp_matrix.m[0][0],
+        temp_matrix.m[0][1], temp_matrix.m[0][2] );
+    auto vaxisy = Vector3( temp_matrix.m[1][0],
+        temp_matrix.m[1][1], temp_matrix.m[1][2] );
+    auto vaxisz = Vector3( temp_matrix.m[2][0],
+        temp_matrix.m[2][1], temp_matrix.m[2][2] );
+
+    Vector3 vdelta = world_location - cache::localCamera.location;
+    auto vtransformed = Vector3(
+        vdelta.dot( vaxisy ),
+        vdelta.dot( vaxisz ),
+        vdelta.dot( vaxisx ) );
+
+    if ( vtransformed.z < 1 ) vtransformed.z = 1;
+
+    float focal = settings.ScreenCenterX /
+        tanf( cache::localCamera.fov * M_PI / 360 );
+
+    return Vector2(
+        settings.ScreenCenterX + vtransformed.x * focal / vtransformed.z,
+        settings.ScreenCenterY - vtransformed.y * focal / vtransformed.z );
+}`,
+          description: "Builds rotation matrix from camera angles, extracts three axis vectors. Projects world-to-camera delta onto each axis. Divides by depth for perspective. Returns screen pixel coordinates.",
+          points: [
+            "rotation matrix → 3 axes: camera's local coordinate system",
+            "delta = target - camera: vector from us to them",
+            "dot with each axis: how far along each direction",
+            "divide by z: perspective — farther = smaller",
+            "screen_y subtracted: screen coords go top-down"
+          ]
+        }
+      ]
+    },
+    {
+      id: "bones",
+      kicker: "07 / BONES",
+      title: "Bone Extraction",
+      description: "Reading skeleton positions for aim and ESP.",
+      blocks: [
+        {
+          title: "getEntityBone()",
+          language: "C++",
+          code: `Vector3 getEntityBone( const std::uintptr_t mesh, const int bone_id )
+{
+    uintptr_t bone_array = ClarkDtcDriver::read<uintptr_t>(
+        mesh + offsets::BONE_ARRAY );
+    if ( bone_array == 0 )
+        bone_array = ClarkDtcDriver::read<uintptr_t>(
+            mesh + offsets::BONE_ARRAY_CACHE );
+
+    FTransform bone = ClarkDtcDriver::read<FTransform>(
+        bone_array + ( bone_id * 0x60 ) );
+
+    FTransform comp_to_world = ClarkDtcDriver::read<FTransform>(
+        mesh + offsets::COMPONENT_TO_WORLD );
+
+    D3DMATRIX matrix = MatrixMultiplication(
+        bone.ToMatrixWithScale( ),
+        comp_to_world.ToMatrixWithScale( ) );
+
+    return Vector3( matrix._41, matrix._42, matrix._43 );
+}`,
+          description: "Finds bone array, reads specific bone's transform (each bone is 96 bytes apart), reads mesh's world transform, multiplies them. Result = bone position in world coordinates.",
+          points: [
+            "bone_array: pointer to array of FTransform structs",
+            "bone_id × 0x60: each FTransform is 96 bytes",
+            "bone transform: local position relative to parent",
+            "component_to_world: mesh position in world",
+            "multiply: local × world = final world position"
+          ]
+        },
+        {
+          title: "is_visible()",
+          language: "C++",
+          code: `bool is_visible( std::uintptr_t mesh )
+{
+    float last_submit = ClarkDtcDriver::read<float>( mesh + 0x530 );
+    double delta = ClarkDtcDriver::read<double>( last_submit + 0x7E4 );
+    double last_render = ClarkDtcDriver::read<double>( delta + 0x7C0 );
+
+    return std::fmax( 0.06, delta + 0.000099999997 )
+        >= last_render - static_cast<double>( last_submit );
+}`,
+          description: "Compares when mesh was submitted for rendering vs when it was actually drawn. Small gap = on screen. Large gap = blocked by wall. Heuristic but cheap.",
+          points: [
+            "last_submit: entered render queue",
+            "last_render: pixels hit screen",
+            "small gap = rendered immediately = visible",
+            "large gap = delayed = behind wall"
+          ]
+        }
+      ]
+    },
+    {
+      id: "aim",
+      kicker: "08 / AIM",
+      title: "Aim Calculations",
+      description: "The math to figure out where to aim. Calculations only — implementation is up to you.",
+      blocks: [
+        {
+          title: "calculate_angle()",
+          language: "C++",
+          code: `Vector3 calculate_angle( const Vector3& src, const Vector3& dst )
+{
+    Vector3 dir = dst - src;
+
+    float yaw = atan2f( dir.y, dir.x ) * ( 180.0f / M_PI );
+    float pitch = atan2f( -dir.z, sqrtf(
+        dir.x * dir.x + dir.y * dir.y ) ) * ( 180.0f / M_PI );
+
+    return Vector3{ pitch, yaw, 0.0 };
+}`,
+          description: "Direction vector from source to target. Yaw = compass direction (atan2 of Y/X). Pitch = elevation (atan2 of -Z over horizontal distance). Returns angles in degrees.",
+          points: [
+            "dir = dst - src: vector pointing at target",
+            "yaw: atan2(dir.y, dir.x) = compass direction",
+            "pitch: atan2(-dir.z, horizontal_dist) = up/down",
+            "result: x = pitch, y = yaw (matches camera format)"
+          ]
+        },
+        {
+          title: "normalize & smooth",
+          language: "C++",
+          code: `float normalize_angle( float angle )
+{
+    while ( angle > 180.0f ) angle -= 360.0f;
+    while ( angle < -180.0f ) angle += 360.0f;
+    return angle;
+}
+
+Vector3 smooth_aim( const Vector3& current, const Vector3& target, float smooth )
+{
+    Vector3 delta = target - current;
+    delta.x = normalize_angle( delta.x );
+    delta.y = normalize_angle( delta.y );
+    return current + ( delta / smooth );
+}`,
+          description: "Normalization wraps angles to [-180, 180] — prevents spinning the long way. Smoothing divides the turn into steps — higher smooth = slower, more human-looking movement.",
+          points: [
+            "normalize: 350° and -10° are same — wrap to shortest path",
+            "delta = how far we need to turn",
+            "smooth = 1: instant snap, smooth = 5-10: human-like",
+            "apply per-frame for continuous tracking"
+          ]
+        },
+        {
+          title: "select_target()",
+          language: "C++",
+          code: `bool in_fov( const Vector3& target_pos, float fov_radius )
+{
+    Vector2 screen = PW2S( target_pos );
+    float dx = screen.x - settings.ScreenCenterX;
+    float dy = screen.y - settings.ScreenCenterY;
+    return sqrtf( dx * dx + dy * dy ) <= fov_radius;
+}
+
+entity* select_target( std::vector<entity>& entities,
+    const Camera& cam, float fov_radius )
+{
+    entity* best = nullptr;
+    float closest = FLT_MAX;
+
+    for ( auto& e : entities )
+    {
+        if ( !e.visible ) continue;
+        if ( !in_fov( e.head, fov_radius ) ) continue;
+        if ( e.team == cache::myTeamID ) continue;
+
+        float dist = e.pos.distance( cam.location );
+        if ( dist < closest )
+        {
+            closest = dist;
+            best = &e;
+        }
+    }
+    return best;
+}`,
+          description: "Filter by visible, in FOV, not teammate. Of remaining, pick closest. Screen distance determines FOV membership, world distance breaks ties.",
+          points: [
+            "in_fov: screen-space distance from crosshair",
+            "visible check: skip targets behind walls",
+            "team check: don't aim at teammates",
+            "closest wins: 3D distance breaks ties"
+          ]
+        }
+      ]
+    },
+    {
+      id: "esp",
+      kicker: "09 / ESP",
+      title: "Drawing ESP",
+      description: "Boxes and skeletons on screen. All positions go through PW2S first.",
+      blocks: [
+        {
+          title: "draw_esp_box()",
+          language: "C++",
+          code: `void draw_esp_box( const entity& e, ImDrawList* draw, const Camera& cam )
+{
+    Vector2 head = PW2S( e.head, cam );
+    Vector2 feet = PW2S( e.pos, cam );
+
+    if ( head.x < 0 || head.x > settings.ScreenWidth ) return;
+    if ( feet.y < 0 || feet.y > settings.ScreenHeight ) return;
+
+    float height = feet.y - head.y;
+    float width = height * 0.5f;
+    float x = head.x - width / 2;
+    float y = head.y;
+
+    ImU32 color = e.visible
+        ? IM_COL32( 110, 231, 183, 255 )
+        : IM_COL32( 248, 113, 113, 255 );
+
+    draw->AddRect(
+        ImVec2( x, y ),
+        ImVec2( x + width, y + height ),
+        color, 1.5f );
+
+    float hp_pct = e.health / 100.0f;
+    draw->AddRectFilled(
+        ImVec2( x - 6, y ),
+        ImVec2( x - 3, y + height * ( 1 - hp_pct ) ),
+        IM_COL32( 110, 231, 183, 200 ) );
+}`,
+          description: "Project head and feet to screen. Height between them = box height. Width = half height for humanoid proportions. Color by visibility. Health bar shrinks from top.",
+          points: [
+            "head/feet projected = box boundaries",
+            "width = height × 0.5 = body proportion",
+            "cull off-screen entities",
+            "green = visible, red = behind wall",
+            "health bar: shrinks with damage"
+          ]
+        },
+        {
+          title: "draw_skeleton()",
+          language: "C++",
+          code: `void draw_skeleton( const entity& e, ImDrawList* draw, const Camera& cam )
+{
+    const int bones[][2] = {
+        { 68, 7 },   // head to neck
+        { 7, 36 },   // neck to spine
+        { 7, 11 },   // neck to left shoulder
+        { 7, 12 },   // neck to right shoulder
+        { 11, 33 },  // left shoulder to hand
+        { 12, 34 },  // right shoulder to hand
+        { 36, 63 },  // spine to left foot
+        { 36, 64 },  // spine to right foot
+    };
+
+    ImU32 color = e.visible
+        ? IM_COL32( 196, 181, 253, 255 )
+        : IM_COL32( 232, 232, 236, 100 );
+
+    for ( const auto& pair : bones )
+    {
+        Vector3 s = getEntityBone( e.mesh, pair[0] );
+        Vector3 t = getEntityBone( e.mesh, pair[1] );
+        Vector2 ss = PW2S( s, cam );
+        Vector2 ts = PW2S( t, cam );
+        draw->AddLine(
+            ImVec2( ss.x, ss.y ),
+            ImVec2( ts.x, ts.y ),
+            color, 1.0f );
+    }
+}`,
+          description: "Defines bone connections as pairs. For each: get both bone world positions, project both to screen, draw line. Shows enemy pose — crouching, running, aiming.",
+          points: [
+            "bone IDs: 68=head, 7=neck, 36=spine, etc.",
+            "each line = 2 bone reads + 2 w2s + 1 draw",
+            "more info than box but more expensive",
+            "8 connections = 16 bone reads per enemy"
+          ]
+        }
+      ]
+    },
+    {
+      id: "overlay",
+      kicker: "10 / OVERLAY",
+      title: "The Overlay",
+      description: "Drawing on top of the game using a hijacked window.",
+      blocks: [
+        {
+          title: "hijack_window()",
+          language: "C++",
+          code: `inline void hijack_window( )
+{
+    if ( my_wnd && IsWindow( my_wnd ) )
+        return;
+
+    my_wnd = FindWindowA( "Chrome_WidgetWin_1", "Discord Overlay" );
+    if ( !my_wnd )
+        return;
+
+    overlay_detail::apply_window_surface( my_wnd );
+}
+
+inline void apply_window_surface( HWND hwnd )
+{
+    if ( !hwnd ) return;
+
+    DwmExtendFrameIntoClientArea( hwnd, &m_window_margin );
+
+    const LONG_PTR style = GetWindowLongPtrA( hwnd, GWL_EXSTYLE );
+    SetWindowLongPtrA( hwnd, GWL_EXSTYLE,
+        style | WS_EX_LAYERED | WS_EX_TOOLWINDOW );
+
+    SetLayeredWindowAttributes( hwnd, RGB( 0,0,0 ), 255, LWA_ALPHA );
+
+    UpdateWindow( hwnd );
+    ShowWindow( hwnd, SW_SHOW );
+}`,
+          description: "Finds Discord's overlay window (already transparent and hidden). Makes it layered (transparency support) and tool window (hidden from taskbar). Black pixels become invisible.",
+          points: [
+            "Discord overlay = already transparent, perfect host",
+            "WS_EX_LAYERED: enables per-pixel transparency",
+            "WS_EX_TOOLWINDOW: hides from taskbar/alt-tab",
+            "color key: black = invisible, else visible"
+          ]
+        },
+        {
+          title: "render_loop()",
+          language: "C++",
+          code: `inline WPARAM render_loop( )
+{
+    while ( messager.message != WM_QUIT )
+    {
+        while ( PeekMessage( &messager, nullptr, 0, 0, PM_REMOVE ) )
+        {
+            TranslateMessage( &messager );
+            DispatchMessage( &messager );
+        }
+
+        if ( !game_wnd || !IsWindow( game_wnd ) )
+        {
+            game_wnd = get_process_wnd( ClarkDtcDriver::ProcessID );
+            Sleep( 25 );
+            continue;
+        }
+
+        const HWND fg = GetForegroundWindow( );
+        if ( fg != game_wnd && fg != my_wnd )
+        {
+            Sleep( 10 );
+            continue;
+        }
+
+        overlay_detail::update_target_rect( );
+        overlay_detail::update_mouse_input( );
+
+        ImGui_ImplDX11_NewFrame( );
+        ImGui_ImplWin32_NewFrame( );
+        ImGui::NewFrame( );
+
+        gameCache( );
+        renderVisuals( );
+        renderMenu( );
+
+        ImGui::EndFrame( );
+        overlay_detail::render_frame( );
+
+        const HWND target = GetWindow( game_wnd, GW_HWNDPREV );
+        SetWindowPos( my_wnd, target, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+    }
+
+    shutdown_overlay( );
+    return messager.wParam;
+}`,
+          description: "Main loop: check game running, check focus, update overlay position, feed mouse to ImGui, read memory, draw ESP, draw menu, render. Keeps overlay matched to game window.",
+          points: [
+            "PeekMessage: keeps window responsive",
+            "focus check: don't render when tabbed out",
+            "update_target_rect: overlay follows game window",
+            "gameCache → renderVisuals → renderMenu: read, draw, UI",
+            "z-order: overlay stays just below game"
+          ]
+        },
+        {
+          title: "renderMenu()",
+          language: "C++",
+          code: `void renderMenu()
+{
+    if ( aim.showFov )
+        ImGui::GetForegroundDrawList()->AddCircle(
+            ImVec2( settings.ScreenCenterX, settings.ScreenCenterY ),
+            aim.fovValue,
+            IM_COL32( 250, 250, 250, 250 ),
+            100, 1.0f );
+
+    if ( GetAsyncKeyState( VK_INSERT ) & 1 )
+        menu.showMenu = !menu.showMenu;
+
+    if ( menu.showMenu )
+    {
+        ImGui::SetNextWindowSize( { 620, 350 } );
+        ImGui::Begin( "Base", 0,
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoScrollbar );
+
+        if ( ImGui::Button( "Aimbot", { 196, 20 } ) ) menu.tab = 0;
+        ImGui::SameLine();
+        if ( ImGui::Button( "Visuals", { 196, 20 } ) ) menu.tab = 1;
+        ImGui::SameLine();
+        if ( ImGui::Button( "Misc", { 196, 20 } ) ) menu.tab = 2;
+
+        switch ( menu.tab )
+        {
+            case 0:
+                ImGui::Checkbox( "Show Fov", &aim.showFov );
+                ImGui::SliderFloat( "##Fov", &aim.fovValue,
+                    50, 300, "Fov: %.2f" );
+                break;
+            case 1:
+                ImGui::Checkbox( "Enable", &visual.enable );
+                ImGui::Checkbox( "Box", &visual.box );
+                ImGui::Checkbox( "Skeleton", &visual.skeleton );
+                break;
+            case 2:
+                if ( ImGui::Button( "Unload", { 120, 20 } ) )
+                    exit( 0 );
+                break;
+        }
+        ImGui::End();
+    }
+}`,
+          description: "FOV circle on foreground (visible while playing). Insert toggles menu. Three tabs set flags that other functions check. Unload exits cleanly.",
+          points: [
+            "foreground draw list: FOV circle above everything",
+            "GetAsyncKeyState & 1: detects press not hold",
+            "SameLine(): buttons side by side",
+            "##Fov: invisible label for unique ID",
+            "tabs set flags — renderVisuals checks them"
+          ]
+        }
+      ]
+    }
+  ]
+},
+roblox: {
+  label: "ROBLOX",
+  title: "Roblox Development",
+  description: "Luau scripting from zero. Complete working code.",
+  sections: [
+    {
+      id: "intro",
+      kicker: "01 / INTRO",
+      title: "Getting Started",
+      description: "Server vs client, events, and the basic script structure.",
+      blocks: [
+        {
+          title: "Player Events",
+          language: "Luau",
+          code: `local Players = game:GetService("Players")
+
+Players.PlayerAdded:Connect(function(player)
+    print(player.Name .. " joined")
+
+    player.CharacterAdded:Connect(function(char)
+        local humanoid = char:WaitForChild("Humanoid")
+        print(player.Name .. " spawned")
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    print(player.Name .. " left")
+end)`,
+          description: "PlayerAdded fires on join, CharacterAdded fires on spawn (including respawns), PlayerRemoving fires on leave. These three events are in every Roblox script.",
+          points: [
+            "GetService: correct way to grab Roblox services",
+            "CharacterAdded fires multiple times per player (respawns)",
+            "WaitForChild: prevents race conditions with loading"
+          ]
+        },
+        {
+          title: "Server vs Client",
+          language: "Luau",
+          code: `-- Server Script: game logic, data, anti-cheat
+-- LocalScript: UI, camera, input, effects
+-- Never trust the client with important data
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remote = Instance.new("RemoteEvent")
+remote.Name = "NotifyClient"
+remote.Parent = ReplicatedStorage
+
+-- server → client
+remote:FireClient(player, "damage taken", 25)
+
+-- client listens (in LocalScript)
+local remote = ReplicatedStorage:WaitForChild("NotifyClient")
+remote.OnClientEvent:Connect(function(msg, amount)
+    print(msg, amount)
+end)`,
+          description: "Server scripts run on Roblox's servers — secure, can't be tampered with. LocalScripts run on the player's device — can be modified. RemoteEvents bridge the gap safely.",
+          points: [
+            "server = secure, client = can be exploited",
+            "RemoteEvents: only safe way to communicate",
+            "FireClient: one player, FireAllClients: everyone"
+          ]
+        }
+      ]
+    },
+    {
+      id: "basics",
+      kicker: "02 / BASICS",
+      title: "Variables & Functions",
+      description: "The building blocks of every script.",
+      blocks: [
+        {
+          title: "Variables & Types",
+          language: "Luau",
+          code: `local name = "clark"           -- string
+local coins = 150               -- number
+local is_admin = false          -- boolean
+local inventory = {"sword"}     -- table
+
+-- typed variables (optional but useful)
+local health: number = 100
+local tags: {string} = {"vip"}
+
+-- constants by convention
+local MAX_COINS = 9999
+
+-- multiple assignment
+local x, y, z = 0, 0, 0`,
+          description: "Luau is dynamically typed but supports optional annotations. Tables are the only data structure — arrays and dictionaries both. Always use local, never global.",
+          points: [
+            "local scope — always use local",
+            "tables = arrays and dictionaries",
+            "type annotations optional but catch bugs",
+            "UPPER_CASE for constants by convention"
+          ]
+        },
+        {
+          title: "Functions",
+          language: "Luau",
+          code: `local function greet(name: string): string
+    return "hey, " .. name
+end
+
+-- functions are values
+local function apply(f, x)
+    return f(x)
+end
+print(apply(greet, "clark"))
+
+-- variadic
+local function sum(...)
+    local total = 0
+    for _, n in ipairs({...}) do
+        total += n
+    end
+    return total
+end
+print(sum(1, 2, 3, 4))
+
+-- anonymous
+local double = function(x) return x * 2 end
+print(double(21))`,
+          description: "Functions are first-class values — pass them, return them, store them. Variadic functions take any number of arguments. Anonymous functions are useful for callbacks.",
+          points: [
+            ".. concatenates strings",
+            "ipairs for arrays, pairs for dictionaries",
+            "+= is Luau shorthand",
+            "functions can be passed as arguments"
+          ]
+        }
+      ]
+    },
+    {
+      id: "systems",
+      kicker: "03 / SYSTEMS",
+      title: "Game Systems",
+      description: "Leaderboards, data persistence, and touch events.",
+      blocks: [
+        {
+          title: "Leaderboard",
+          language: "Luau",
+          code: `local Players = game:GetService("Players")
+
+local function setup_leaderboard(player)
+    local stats = Instance.new("Folder")
+    stats.Name = "leaderstats"
+
+    local coins = Instance.new("IntValue")
+    coins.Name = "Coins"
+    coins.Value = 0
+    coins.Parent = stats
+
+    local kills = Instance.new("IntValue")
+    kills.Name = "Kills"
+    kills.Value = 0
+    kills.Parent = stats
+
+    stats.Parent = player
+end
+
+Players.PlayerAdded:Connect(setup_leaderboard)`,
+          description: "The 'leaderstats' folder name is magic — Roblox auto-displays its contents on the player list. Build bottom-up: create values, parent to folder, parent folder to player.",
+          points: [
+            "folder must be named exactly 'leaderstats'",
+            "IntValue, NumberValue, StringValue all work",
+            "parent order matters — build bottom-up"
+          ]
+        },
+        {
+          title: "Data Persistence",
+          language: "Luau",
+          code: `local DataStoreService = game:GetService("DataStoreService")
+local store = DataStoreService:GetDataStore("PlayerData_v1")
+
+local function load(player)
+    local key = "user_" .. player.UserId
+    local ok, data = pcall(function()
+        return store:GetAsync(key)
+    end)
+    if ok and data then
+        return data
+    end
+    return { coins = 0, level = 1 }
+end
+
+local function save(player, data)
+    local key = "user_" .. player.UserId
+    pcall(function()
+        store:SetAsync(key, data)
+    end)
+end
+
+Players.PlayerAdded:Connect(function(player)
+    local data = load(player)
+
+    task.spawn(function()
+        while player.Parent do
+            task.wait(60)
+            save(player, data)
+        end
+    end)
+end)`,
+          description: "DataStores are Roblox's database. Wrap every call in pcall — they fail silently in Studio and under load in production. Auto-save on timer AND on leave.",
+          points: [
+            "pcall is not optional — DataStores fail",
+            "version datastore names for migration",
+            "auto-save on timer AND player leave",
+            "task.spawn for background loops"
+          ]
+        },
+        {
+          title: "Touch Events",
+          language: "Luau",
+          code: `local coin = script.Parent
+local Players = game:GetService("Players")
+local debounce = false
+
+local function on_touch(hit)
+    local humanoid = hit.Parent:FindFirstChild("Humanoid")
+    if not humanoid then return end
+
+    local player = Players:GetPlayerFromCharacter(hit.Parent)
+    if not player then return end
+
+    local stats = player:FindFirstChild("leaderstats")
+    if not stats then return end
+
+    stats.Coins.Value += 10
+    coin:Destroy()
+end
+
+coin.Touched:Connect(function(hit)
+    if debounce then return end
+    debounce = true
+    on_touch(hit)
+    task.wait(0.1)
+    debounce = false
+end)`,
+          description: "Touched fires when anything touches the coin — including the player's own limbs. Verify it's a humanoid, map to player, check leaderstats exists. Debounce prevents double-fires.",
+          points: [
+            "GetPlayerFromCharacter: character model → player",
+            "debounce: prevents same touch counting twice",
+            "Destroy after pickup — or cooldown if respawning"
+          ]
+        }
+      ]
+    },
+    {
+      id: "advanced",
+      kicker: "04 / ADVANCED",
+      title: "Patterns That Scale",
+      description: "ModuleScripts and event buses for larger projects.",
+      blocks: [
+        {
+          title: "ModuleScript",
+          language: "Luau",
+          code: `-- ReplicatedStorage/Modules/CoinService
+local CoinService = {}
+
+function CoinService.add_coins(player, amount)
+    local stats = player:FindFirstChild("leaderstats")
+    if stats then
+        stats.Coins.Value += amount
+    end
+end
+
+function CoinService.get_coins(player)
+    local stats = player:FindFirstChild("leaderstats")
+    return stats and stats.Coins.Value or 0
+end
+
+return CoinService
+
+-- usage from any script:
+local CoinService = require(game.ReplicatedStorage.Modules.CoinService)
+CoinService.add_coins(player, 50)`,
+          description: "ModuleScripts are Luau's way of sharing code. One source of truth, imported wherever needed. require() caches the module — subsequent calls are free.",
+          points: [
+            "require() caches — subsequent calls free",
+            "return a table of functions = your public API",
+            "keep modules in ReplicatedStorage for server + client access"
+          ]
+        },
+        {
+          title: "Event Bus",
+          language: "Luau",
+          code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local EventBus = {}
+EventBus._events = {}
+
+function EventBus.on(event_name, callback)
+    local bindable = Instance.new("BindableEvent")
+    bindable.Name = event_name
+    bindable.Parent = ReplicatedStorage
+    bindable.Event:Connect(callback)
+    EventBus._events[event_name] = bindable
+end
+
+function EventBus.fire(event_name, ...)
+    local evt = EventBus._events[event_name]
+    if evt then
+        evt:Fire(...)
+    end
+end
+
+-- usage
+EventBus.on("player_died", function(player, killer)
+    print(player.Name .. " killed by " .. killer.Name)
+    CoinService.add_coins(killer, 100)
+end)
+
+EventBus.fire("player_died", victim, attacker)`,
+          description: "When systems need to talk to each other, direct references become spaghetti. An event bus decouples everything — systems fire events, others listen, nobody knows about each other.",
+          points: [
+            "BindableEvents are server-only",
+            "fire and forget — firing system doesn't wait",
+            "keep event names as constants to avoid typos"
+          ]
+        }
+      ]
+    }
+  ]
+}
+};
+
+// viewer count — stored in localStorage, increments per visit
+(function() {
+  let count = localStorage.getItem('evvls_viewers');
+  if (!count) {
+    count = 1337 + Math.floor(Math.random() * 500);
+  }
+  count = parseInt(count) + 1;
+  localStorage.setItem('evvls_viewers', count);
+  document.getElementById('viewer-count').textContent = count.toLocaleString();
+})();
+
+// syntax highlighting with proper word boundaries
+function highlight(code) {
+  let escaped = code
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // comments
+  escaped = escaped.replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>');
+  escaped = escaped.replace(/(--[^\n]*)/g, '<span class="cm">$1</span>');
+  // strings
+  escaped = escaped.replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>');
+  // preprocessor
+  escaped = escaped.replace(/^(#.*)$/gm, '<span class="kw">$1</span>');
+  // keywords — using word boundaries properly
+  escaped = escaped.replace(/\b(struct|class|inline|const|constexpr|static|void|bool|int|float|double|char|auto|return|if|else|for|while|switch|case|break|continue|new|delete|this|true|false|nullptr|using|namespace|template|typename|public|private|protected|virtual|override|operator|sizeof|reinterpret_cast|static_cast|include|pragma|uintptr_t|uint8_t|uint32_t|uint64_t|local|function|end|then|elseif|do|and|or|not|nil|in|repeat|until)\b/g, '<span class="kw">$1</span>');
+  // types
+  escaped = escaped.replace(/\b(Vector2|Vector3|Camera|FQuat|FTransform|D3DMATRIX|_MATRIX|ImVec2|ImColor|ImDrawList|ImU32|HRESULT|HWND|HANDLE|DWORD|UINT|WPARAM|LPARAM|BOOL|FLOAT|MSG|MARGINS|RECT|POINT|LONG_PTR|FNRot)\b/g, '<span class="kw">$1</span>');
+  // functions
+  escaped = escaped.replace(/\b(read|write|FindProcess|SetupDriver|GetBase|BypassCR3|getCamera|PW2S|getEntityBone|is_visible|calculate_angle|normalize_angle|smooth_aim|select_target|in_fov|draw_esp_box|draw_skeleton|hijack_window|apply_window_surface|render_loop|renderMenu|renderVisuals|gameCache|get_process_wnd|ToMatrixWithScale|MatrixMultiplication|Matrix|dot|distance|atan2f|atan2|asin|sin|cos|tanf|sqrtf|fmax|hypot|printf|exit|Sleep|FindWindowA|FindWindowW|GetWindowLongPtrA|SetWindowLongPtrA|SetLayeredWindowAttributes|UpdateWindow|ShowWindow|DwmExtendFrameIntoClientArea|PeekMessage|TranslateMessage|DispatchMessage|GetForegroundWindow|IsWindow|GetAsyncKeyState|GetWindow|SetWindowPos|GetClientRect|ClientToScreen|GetCursorPos|ScreenToClient|Connect)\b/g, '<span class="num">$1</span>');
+  // imgui
+  escaped = escaped.replace(/\b(ImGui::[A-Za-z]+|ImGui_Impl[A-Za-z_]+)\b/g, '<span class="num">$1</span>');
+  // numbers
+  escaped = escaped.replace(/\b(0x[0-9A-Fa-f]+|\d+\.?\d*f?)\b/g, '<span class="num">$1</span>');
+
+  return escaped;
+}
+
+// dom refs
+const selection = document.getElementById("selection");
+const documentation = document.getElementById("documentation");
+const content = document.getElementById("docs-content");
+const docsHeading = document.getElementById("docs-heading");
+const docsDescription = document.getElementById("docs-description");
+const docsLabel = document.getElementById("docs-game-label");
+const docsEyebrow = document.getElementById("docs-eyebrow");
+const sidebarLinks = document.getElementById("sidebar-links");
+const backButton = document.getElementById("back-btn");
+const logo = document.getElementById("logo");
+
+let currentGame = null;
+
+function showView(view) {
+  selection.classList.toggle("active", view === "selection");
+  documentation.classList.toggle("active", view === "documentation");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderSidebar(sections) {
+  sidebarLinks.innerHTML = "";
+  sections.forEach((section, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "side-link" + (index === 0 ? " active" : "");
+    btn.dataset.target = section.id;
+    btn.textContent = section.title;
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".side-link").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = document.getElementById(section.id);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    sidebarLinks.appendChild(btn);
+  });
+}
+
+async function copyCode(button, code) {
+  try {
+    await navigator.clipboard.writeText(code);
+    button.textContent = "copied";
+    button.classList.add("copied");
+    setTimeout(() => {
+      button.textContent = "copy";
+      button.classList.remove("copied");
+    }, 1200);
+  } catch {
+    button.textContent = "failed";
+    setTimeout(() => { button.textContent = "copy"; }, 1200);
+  }
+}
+
+function renderDocs(gameKey) {
+  const game = templates[gameKey];
+  if (!game) return;
+  currentGame = gameKey;
+
+  docsHeading.textContent = game.title;
+  docsDescription.textContent = game.description;
+  docsLabel.textContent = game.label;
+  docsEyebrow.textContent = game.label + " / DOCS";
+
+  content.innerHTML = "";
+  renderSidebar(game.sections);
+
+  game.sections.forEach(section => {
+    const sectionEl = document.createElement("section");
+    sectionEl.className = "docs-section";
+    sectionEl.id = section.id;
+    sectionEl.innerHTML = `
+      <div class="section-kicker">${section.kicker}</div>
+      <h2>${section.title}</h2>
+      <p class="section-desc">${section.description}</p>
+    `;
+
+    section.blocks.forEach(block => {
+      const blockEl = document.createElement("article");
+      blockEl.className = "doc-block";
+
+      blockEl.innerHTML = `
+        <div class="block-header">
+          <div class="block-title">${block.title}</div>
+          <span class="block-lang">${block.language}</span>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <button class="copy-btn" type="button">copy</button>
+          </div>
+          <pre><code>${highlight(block.code)}</code></pre>
+        </div>
+        <div class="explanation">
+          <div class="explanation-title">// what it does</div>
+          <p>${block.description}</p>
+          <ul>
+            ${block.points.map(p => `<li>${p}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+
+      const copyBtn = blockEl.querySelector(".copy-btn");
+      copyBtn.addEventListener("click", () => copyCode(copyBtn, block.code));
+
+      sectionEl.appendChild(blockEl);
+    });
+
+    content.appendChild(sectionEl);
+  });
+
+  showView("documentation");
+  setupScrollSpy();
+}
+
+function setupScrollSpy() {
+  const sectionEls = document.querySelectorAll(".docs-section");
+  const links = document.querySelectorAll(".side-link");
+  if (!sectionEls.length) return;
+
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+    if (!visible.length) return;
+    const activeId = visible[0].target.id;
+    links.forEach(link => {
+      link.classList.toggle("active", link.dataset.target === activeId);
+    });
+  }, { rootMargin: "-15% 0px -65% 0px", threshold: [0, 0.1, 0.25, 0.5] });
+
+  sectionEls.forEach(s => observer.observe(s));
+}
+
+// events
+document.querySelectorAll(".game-card").forEach(card => {
+  card.addEventListener("click", () => renderDocs(card.dataset.game));
+});
+
+backButton.addEventListener("click", () => showView("selection"));
+logo.addEventListener("click", e => { e.preventDefault(); showView("selection"); });
+</script>
+</body>
+</html>
