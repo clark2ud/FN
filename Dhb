@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 Web Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Windows Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        winbg: '#005fb8',
+                        winacrylic: 'rgba(32, 32, 32, 0.75)',
+                        winacryliclight: 'rgba(243, 243, 243, 0.85)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            overflow: hidden;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .acrylic-dark {
+            background: rgba(32, 32, 32, 0.82);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .acrylic-light {
+            background: rgba(245, 245, 245, 0.85);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .acrylic-taskbar {
+            background: rgba(24, 24, 24, 0.75);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .acrylic-taskbar-light {
+            background: rgba(240, 240, 240, 0.78);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .window-shadow {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08) inset;
+        }
+        .window-shadow-light {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05) inset;
+        }
+        .app-icon-hover:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .app-icon-hover-light:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        /* Hide scrollbars for clean Win11 look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(150, 150, 150, 0.4);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(150, 150, 150, 0.7);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen relative text-white dark">
+
+    <!-- LOCK SCREEN -->
+    <div id="lockScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-between py-16 bg-cover bg-center transition-all duration-700 cursor-pointer" style="background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2560&auto=format&fit=crop')">
+        <div class="text-center drop-shadow-md select-none mt-10">
+            <h1 id="lockClock" class="text-8xl font-light tracking-tight">11:26</h1>
+            <p id="lockDate" class="text-2xl font-medium mt-2">Sunday, September 20</p>
+        </div>
+        <div id="lockPrompt" class="flex flex-col items-center transition-opacity duration-300">
+            <div class="w-28 h-28 rounded-full border-2 border-white/40 overflow-hidden shadow-2xl mb-4 bg-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-user text-5xl text-white/80"></i>
+            </div>
+            <h2 class="text-2xl font-semibold mb-6">John Doe</h2>
+            <button onclick="unlockDesktop(event)" class="px-8 py-2.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white font-medium shadow-lg transition-all">Sign In</button>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-white/80 drop-shadow">
+            <span><i class="fa-solid fa-wifi mr-2"></i>Connected</span>
+            <span><i class="fa-solid fa-battery-three-quarters mr-2"></i>85%</span>
+        </div>
+    </div>
+
+    <!-- DESKTOP WORKSPACE -->
+    <div id="desktop" class="absolute inset-0 pb-12 flex flex-col flex-wrap content-start gap-4 p-4 z-10">
+        <!-- Desktop Shortcuts -->
+        <div onclick="openApp('explorer')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-solid fa-folder text-4xl text-yellow-400 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">This PC</span>
+        </div>
+        <div onclick="openApp('edge')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-brands fa-edge text-4xl text-cyan-400 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">Edge</span>
+        </div>
+        <div onclick="openApp('store')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-solid fa-bag-shopping text-4xl text-blue-400 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">Store</span>
+        </div>
+        <div onclick="openApp('vscode')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-solid fa-code text-4xl text-sky-500 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">VS Code</span>
+        </div>
+        <div onclick="openApp('spotify')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-brands fa-spotify text-4xl text-emerald-400 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">Spotify</span>
+        </div>
+        <div onclick="openApp('settings')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-solid fa-gear text-4xl text-slate-300 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">Settings</span>
+        </div>
+        <div onclick="openApp('recycle')" class="w-20 h-20 rounded-lg flex flex-col items-center justify-center p-1 hover:bg-white/10 cursor-pointer group text-center">
+            <i class="fa-solid fa-trash-can text-4xl text-slate-300 drop-shadow-md group-hover:scale-105 transition-transform"></i>
+            <span class="text-xs mt-1 text-white drop-shadow truncate w-full">Recycle Bin</span>
+        </div>
+    </div>
+
+    <!-- WINDOWS CONTAINER -->
+    <div id="windowsContainer" class="absolute inset-0 pb-12 pointer-events-none z-20 overflow-hidden"></div>
+
+    <!-- START MENU FLYOUT -->
+    <div id="startMenu" class="absolute bottom-16 left-1/2 -translate-x-1/2 w-[640px] h-[620px] rounded-2xl acrylic-dark window-shadow p-6 z-40 hidden flex-col transition-all duration-200">
+        <!-- Search Bar -->
+        <div class="relative mb-6">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-zinc-400 text-sm"></i>
+            <input type="text" placeholder="Search for apps, settings, and documents" class="w-full bg-zinc-800/80 border border-white/10 rounded-full pl-11 pr-4 py-2.5 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500">
+        </div>
+        <!-- Pinned Section -->
+        <div class="mb-6 flex-1 overflow-y-auto pr-2">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-xs font-semibold text-zinc-300">Pinned</span>
+                <button class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-zinc-200">All apps <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i></button>
+            </div>
+            <div class="grid grid-cols-6 gap-4 text-center">
+                <div onclick="openApp('edge'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-brands fa-edge text-3xl text-cyan-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Edge</span>
+                </div>
+                <div onclick="openApp('store'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-bag-shopping text-3xl text-blue-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Store</span>
+                </div>
+                <div onclick="openApp('vscode'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-code text-3xl text-sky-500 mb-1"></i>
+                    <span class="text-xs truncate w-full">VS Code</span>
+                </div>
+                <div onclick="openApp('spotify'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-brands fa-spotify text-3xl text-emerald-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Spotify</span>
+                </div>
+                <div onclick="openApp('explorer'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-folder text-3xl text-yellow-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Explorer</span>
+                </div>
+                <div onclick="openApp('settings'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-gear text-3xl text-slate-300 mb-1"></i>
+                    <span class="text-xs truncate w-full">Settings</span>
+                </div>
+                <div onclick="openApp('terminal'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-terminal text-3xl text-zinc-200 mb-1"></i>
+                    <span class="text-xs truncate w-full">Terminal</span>
+                </div>
+                <div onclick="openApp('notepad'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-note-sticky text-3xl text-amber-300 mb-1"></i>
+                    <span class="text-xs truncate w-full">Notepad</span>
+                </div>
+                <div onclick="openApp('calculator'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-calculator text-3xl text-orange-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Calculator</span>
+                </div>
+                <div onclick="openApp('taskmgr'); toggleStartMenu()" class="flex flex-col items-center p-3 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-chart-line text-3xl text-purple-400 mb-1"></i>
+                    <span class="text-xs truncate w-full">Task Mgr</span>
+                </div>
+            </div>
+        </div>
+        <!-- Recommended Section -->
+        <div class="mb-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-semibold text-zinc-300">Recommended</span>
+                <button class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-zinc-200">More <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i></button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-file-word text-blue-500 text-2xl"></i>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-medium truncate">Project_Proposal.docx</p>
+                        <p class="text-[10px] text-zinc-400">Recently opened</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <i class="fa-solid fa-file-code text-cyan-400 text-2xl"></i>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-medium truncate">index.html</p>
+                        <p class="text-[10px] text-zinc-400">VS Code • 2h ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- User Footer -->
+        <div class="pt-4 border-t border-white/10 flex justify-between items-center mt-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-semibold text-sm">JD</div>
+                <span class="text-sm font-medium">John Doe</span>
+            </div>
+            <button onclick="lockDesktop()" class="p-2 rounded hover:bg-white/10 text-zinc-300 hover:text-white" title="Power / Lock"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </div>
+
+    <!-- WIDGETS FLYOUT -->
+    <div id="widgetsFlyout" class="absolute bottom-16 left-4 w-[480px] h-[600px] rounded-2xl acrylic-dark window-shadow p-6 z-40 hidden flex-col overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-lg font-semibold">Widgets</span>
+            <button onclick="toggleWidgets()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold">Weather</span>
+                    <i class="fa-solid fa-cloud-sun text-amber-400 text-xl"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-light">72°F</span>
+                    <span class="text-xs text-zinc-400">New York, NY</span>
+                </div>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <span class="text-sm font-semibold block mb-2">Stocks</span>
+                <div class="flex justify-between items-center py-1 border-b border-white/5">
+                    <span class="text-xs font-medium">AAPL</span>
+                    <span class="text-xs text-emerald-400">+1.24% ($182.50)</span>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span class="text-xs font-medium">MSFT</span>
+                    <span class="text-xs text-emerald-400">+0.85% ($415.20)</span>
+                </div>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <span class="text-sm font-semibold block mb-2">Top Stories</span>
+                <p class="text-xs text-zinc-300 font-medium mb-1">Windows 11 Bloom wallpaper gets high-res update in web edition</p>
+                <p class="text-[10px] text-zinc-400">TechNews • 2 hours ago</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALENDAR & NOTIFICATION FLYOUT -->
+    <div id="calendarFlyout" class="absolute bottom-16 right-4 w-[380px] h-[580px] rounded-2xl acrylic-dark window-shadow p-5 z-40 hidden flex-col justify-between">
+        <div>
+            <div class="text-center pb-4 border-b border-white/10">
+                <div id="calTime" class="text-3xl font-light">11:26 AM</div>
+                <div id="calDate" class="text-sm text-zinc-300 mt-1">Sunday, September 20, 2026</div>
+            </div>
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span id="calMonthTitle" class="text-sm font-semibold">September 2026</span>
+                    <div class="flex gap-1">
+                        <button class="p-1 hover:bg-white/10 rounded"><i class="fa-solid fa-chevron-up text-xs"></i></button>
+                        <button class="p-1 hover:bg-white/10 rounded"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 text-center text-xs text-zinc-400 font-medium mb-2">
+                    <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 text-center text-xs gap-y-2">
+                    <!-- Days injected via JS -->
+                </div>
+            </div>
+        </div>
+        <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+            <span class="text-xs text-zinc-400">No new notifications</span>
+            <button class="text-xs text-blue-400 hover:underline">Clear all</button>
+        </div>
+    </div>
+
+    <!-- QUICK SETTINGS FLYOUT -->
+    <div id="quickSettingsFlyout" class="absolute bottom-16 right-16 w-[360px] rounded-2xl acrylic-dark window-shadow p-5 z-40 hidden flex-col gap-4">
+        <div class="grid grid-cols-3 gap-3">
+            <button onclick="toggleQuickSetting(this)" class="qs-btn flex flex-col items-center justify-center p-3 rounded-xl bg-blue-600 text-white text-xs gap-2 transition-all">
+                <i class="fa-solid fa-wifi text-lg"></i>
+                <span>Wi-Fi</span>
+            </button>
+            <button onclick="toggleQuickSetting(this)" class="qs-btn flex flex-col items-center justify-center p-3 rounded-xl bg-blue-600 text-white text-xs gap-2 transition-all">
+                <i class="fa-solid fa-bluetooth text-lg"></i>
+                <span>Bluetooth</span>
+            </button>
+            <button onclick="toggleQuickSetting(this)" class="qs-btn flex flex-col items-center justify-center p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs gap-2 transition-all">
+                <i class="fa-solid fa-moon text-lg"></i>
+                <span>Focus</span>
+            </button>
+        </div>
+        <div class="space-y-3 pt-2">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-volume-high text-zinc-300 w-5"></i>
+                <input type="range" min="0" max="100" value="75" class="w-full accent-blue-500 h-1 bg-zinc-700 rounded-lg cursor-pointer">
+            </div>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-sun text-zinc-300 w-5"></i>
+                <input type="range" min="0" max="100" value="90" class="w-full accent-blue-500 h-1 bg-zinc-700 rounded-lg cursor-pointer">
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex justify-between items-center text-xs text-zinc-400">
+            <span>Battery 85%</span>
+            <button onclick="openApp('settings')" class="hover:underline">All settings</button>
+        </div>
+    </div>
+
+    <!-- TASKBAR -->
+    <div id="taskbar" class="absolute bottom-0 inset-x-0 h-12 acrylic-taskbar z-40 flex items-center justify-between px-3">
+        <!-- Left Spacing / Widgets button -->
+        <div class="flex items-center gap-1 w-48">
+            <button onclick="toggleWidgets()" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg app-icon-hover text-xs transition-all">
+                <i class="fa-solid fa-cloud-sun text-amber-400 text-sm"></i>
+                <span class="font-medium">72°F</span>
+            </button>
+        </div>
+
+        <!-- Center Taskbar Icons -->
+        <div class="flex items-center gap-1">
+            <button onclick="toggleStartMenu()" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-xl" title="Start">
+                <i class="fa-brands fa-windows text-blue-400"></i>
+            </button>
+            <button onclick="openApp('search')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-sm text-zinc-200" title="Search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button onclick="openApp('explorer')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="File Explorer">
+                <i class="fa-solid fa-folder text-yellow-400"></i>
+            </button>
+            <button onclick="openApp('edge')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Microsoft Edge">
+                <i class="fa-brands fa-edge text-cyan-400"></i>
+            </button>
+            <button onclick="openApp('store')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Microsoft Store">
+                <i class="fa-solid fa-bag-shopping text-blue-400"></i>
+            </button>
+            <button onclick="openApp('vscode')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Visual Studio Code">
+                <i class="fa-solid fa-code text-sky-400"></i>
+            </button>
+            <button onclick="openApp('spotify')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Spotify">
+                <i class="fa-brands fa-spotify text-emerald-400"></i>
+            </button>
+            <button onclick="openApp('terminal')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Terminal">
+                <i class="fa-solid fa-terminal text-zinc-200"></i>
+            </button>
+            <button onclick="openApp('settings')" class="w-10 h-10 rounded-lg flex items-center justify-center app-icon-hover transition-all text-lg" title="Settings">
+                <i class="fa-solid fa-gear text-slate-300"></i>
+            </button>
+        </div>
+
+        <!-- Right System Tray -->
+        <div class="flex items-center gap-1 w-48 justify-end text-xs">
+            <button onclick="toggleQuickSettings()" class="flex items-center gap-2 px-2 py-1.5 rounded-lg app-icon-hover transition-all">
+                <i class="fa-solid fa-wifi text-zinc-300"></i>
+                <i class="fa-solid fa-volume-high text-zinc-300"></i>
+                <i class="fa-solid fa-battery-three-quarters text-zinc-300"></i>
+            </button>
+            <button onclick="toggleCalendar()" class="px-3 py-1.5 rounded-lg app-icon-hover transition-all text-right">
+                <div id="taskbarClock" class="font-medium leading-tight">11:26 AM</div>
+                <div id="taskbarDate" class="text-[10px] text-zinc-400 leading-tight">9/20/2026</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP & WINDOW ENGINE -->
+    <script>
+        // State Management
+        let windows = {};
+        let activeWindowId = null;
+        let zIndexCounter = 100;
+
+        // Clock & Date updater
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const timeStr = `${hours}:${minutes} ${ampm}`;
+            const dateStr = now.toLocaleDateString();
+            const longDateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+            document.getElementById('lockClock').innerText = `${hours}:${minutes}`;
+            document.getElementById('lockDate').innerText = longDateStr;
+            document.getElementById('taskbarClock').innerText = timeStr;
+            document.getElementById('taskbarDate').innerText = dateStr;
+            document.getElementById('calTime').innerText = timeStr;
+            document.getElementById('calDate').innerText = `${longDateStr}, ${now.getFullYear()}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Calendar Generator
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 30; i++) {
+                const dayEl = document.createElement('div');
+                dayEl.innerText = i;
+                dayEl.className = `py-1.5 rounded-full cursor-pointer hover:bg-white/10 ${i === 20 ? 'bg-blue-600 font-semibold text-white' : 'text-zinc-200'}`;
+                grid.appendChild(dayEl);
+            }
+        }
+        generateCalendar();
+
+        // Lock / Unlock Screen
+        function unlockDesktop(e) {
+            e.stopPropagation();
+            const lock = document.getElementById('lockScreen');
+            lock.style.transform = 'translateY(-100%)';
+            setTimeout(() => { lock.style.display = 'none'; }, 700);
+        }
+        function lockDesktop() {
+            const lock = document.getElementById('lockScreen');
+            lock.style.display = 'flex';
+            setTimeout(() => { lock.style.transform = 'translateY(0)'; }, 50);
+            toggleStartMenu();
+        }
+
+        // Flyout toggles
+        function toggleStartMenu() {
+            const menu = document.getElementById('startMenu');
+            menu.classList.toggle('hidden');
+            document.getElementById('widgetsFlyout').classList.add('hidden');
+            document.getElementById('calendarFlyout').classList.add('hidden');
+            document.getElementById('quickSettingsFlyout').classList.add('hidden');
+        }
+        function toggleWidgets() {
+            const w = document.getElementById('widgetsFlyout');
+            w.classList.toggle('hidden');
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('calendarFlyout').classList.add('hidden');
+            document.getElementById('quickSettingsFlyout').classList.add('hidden');
+        }
+        function toggleCalendar() {
+            const c = document.getElementById('calendarFlyout');
+            c.classList.toggle('hidden');
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('widgetsFlyout').classList.add('hidden');
+            document.getElementById('quickSettingsFlyout').classList.add('hidden');
+        }
+        function toggleQuickSettings() {
+            const qs = document.getElementById('quickSettingsFlyout');
+            qs.classList.toggle('hidden');
+            document.getElementById('startMenu').classList.add('hidden');
+            document.getElementById('widgetsFlyout').classList.add('hidden');
+            document.getElementById('calendarFlyout').classList.add('hidden');
+        }
+        function toggleQuickSetting(btn) {
+            btn.classList.toggle('bg-blue-600');
+            btn.classList.toggle('bg-white/10');
+        }
+
+        // Window Definitions & App Creator
+        const appConfigs = {
+            explorer: { title: 'File Explorer', icon: 'fa-solid fa-folder text-yellow-400', w: 800, h: 500, content: getExplorerHTML() },
+            edge: { title: 'Microsoft Edge', icon: 'fa-brands fa-edge text-cyan-400', w: 900, h: 550, content: getEdgeHTML() },
+            store: { title: 'Microsoft Store', icon: 'fa-solid fa-bag-shopping text-blue-400', w: 850, h: 520, content: getStoreHTML() },
+            vscode: { title: 'Visual Studio Code', icon: 'fa-solid fa-code text-sky-400', w: 900, h: 550, content: getVsCodeHTML() },
+            spotify: { title: 'Spotify', icon: 'fa-brands fa-spotify text-emerald-400', w: 800, h: 500, content: getSpotifyHTML() },
+            settings: { title: 'Settings', icon: 'fa-solid fa-gear text-slate-300', w: 800, h: 500, content: getSettingsHTML() },
+            terminal: { title: 'Windows Terminal', icon: 'fa-solid fa-terminal text-zinc-200', w: 750, h: 450, content: getTerminalHTML() },
+            notepad: { title: 'Notepad', icon: 'fa-solid fa-note-sticky text-amber-300', w: 700, h: 450, content: getNotepadHTML() },
+            calculator: { title: 'Calculator', icon: 'fa-solid fa-calculator text-orange-400', w: 340, h: 480, content: getCalculatorHTML() },
+            taskmgr: { title: 'Task Manager', icon: 'fa-solid fa-chart-line text-purple-400', w: 750, h: 480, content: getTaskMgrHTML() },
+            recycle: { title: 'Recycle Bin', icon: 'fa-solid fa-trash-can text-slate-300', w: 700, h: 450, content: `<div class="p-6 text-zinc-400 text-center"><i class="fa-solid fa-trash-can text-6xl mb-3"></i><p>Recycle Bin is empty.</p></div>` }
+        };
+
+        function openApp(appId) {
+            if (windows[appId]) {
+                focusWindow(appId);
+                return;
+            }
+            const config = appConfigs[appId];
+            if (!config) return;
+
+            zIndexCounter++;
+            const winId = 'win_' + appId;
+            const winEl = document.createElement('div');
+            winEl.id = winId;
+            winEl.className = 'absolute pointer-events-auto rounded-xl acrylic-dark window-shadow flex flex-col overflow-hidden transition-shadow duration-200';
+            winEl.style.width = config.w + 'px';
+            winEl.style.height = config.h + 'px';
+            winEl.style.left = (window.innerWidth - config.w) / 2 + (Math.random() * 40 - 20) + 'px';
+            winEl.style.top = (window.innerHeight - config.h) / 2 + (Math.random() * 40 - 20) + 'px';
+            winEl.style.zIndex = zIndexCounter;
+
+            winEl.innerHTML = `
+                <div class="h-10 bg-zinc-900/40 flex items-center justify-between px-4 select-none cursor-grab active:cursor-grabbing border-b border-white/5" onmousedown="startDrag(event, '${winId}')">
+                    <div class="flex items-center gap-2 pointer-events-none">
+                        <i class="${config.icon} text-sm"></i>
+                        <span class="text-xs font-medium text-zinc-200">${config.title}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="minimizeWindow('${winId}')" class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-zinc-300"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <button onclick="maximizeWindow('${winId}')" class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-zinc-300"><i class="fa-regular fa-square text-[10px]"></i></button>
+                        <button onclick="closeWindow('${winId}', '${appId}')" class="w-8 h-8 rounded hover:bg-red-600 flex items-center justify-center text-zinc-300 hover:text-white"><i class="fa-solid fa-xmark text-xs"></i></button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto bg-zinc-950/40 text-zinc-100 flex flex-col">
+                    ${config.content}
+                </div>
+            `;
+
+            winEl.onmousedown = () => focusWindow(appId);
+            document.getElementById('windowsContainer').appendChild(winEl);
+            windows[appId] = { id: winId, el: winEl, isMax: false, prevRect: null };
+            activeWindowId = appId;
+
+            if(appId === 'terminal') initTerminal();
+            if(appId === 'calculator') initCalculator();
+            if(appId === 'taskmgr') initTaskMgr();
+        }
+
+        function focusWindow(appId) {
+            zIndexCounter++;
+            if (windows[appId]) {
+                windows[appId].el.style.zIndex = zIndexCounter;
+                activeWindowId = appId;
+            }
+        }
+
+        function closeWindow(winId, appId) {
+            const el = document.getElementById(winId);
+            if (el) el.remove();
+            delete windows[appId];
+        }
+
+        function minimizeWindow(winId) {
+            const el = document.getElementById(winId);
+            if (el) el.style.display = 'none';
+        }
+
+        function maximizeWindow(winId) {
+            const win = Object.values(windows).find(w => w.id === winId);
+            if (!win) return;
+            const el = win.el;
+            if (!win.isMax) {
+                win.prevRect = { left: el.style.left, top: el.style.top, width: el.style.width, height: el.style.height };
+                el.style.left = '0px';
+                el.style.top = '0px';
+                el.style.width = '100vw';
+                el.style.height = 'calc(100vh - 48px)';
+                el.style.borderRadius = '0px';
+                win.isMax = true;
+            } else {
+                el.style.left = win.prevRect.left;
+                el.style.top = win.prevRect.top;
+                el.style.width = win.prevRect.width;
+                el.style.height = win.prevRect.height;
+                el.style.borderRadius = '0.75rem';
+                win.isMax = false;
+            }
+        }
+
+        // Window Draggable Logic
+        let draggingWin = null;
+        let dragOffsetX = 0, dragOffsetY = 0;
+
+        function startDrag(e, winId) {
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            draggingWin = document.getElementById(winId);
+            const rect = draggingWin.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!draggingWin) return;
+            draggingWin.style.left = (e.clientX - dragOffsetX) + 'px';
+            draggingWin.style.top = Math.max(0, e.clientY - dragOffsetY) + 'px';
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            draggingWin = null;
+        }
+
+        function getExplorerHTML() {
+            return `
+                <div class="flex h-full">
+                    <div class="w-48 border-r border-white/10 p-3 space-y-1 text-xs">
+                        <div class="p-2 rounded bg-white/10 font-medium flex items-center gap-2"><i class="fa-solid fa-house text-blue-400"></i> Home</div>
+                        <div class="p-2 rounded hover:bg-white/5 flex items-center gap-2 text-zinc-300"><i class="fa-solid fa-desktop text-cyan-400"></i> Desktop</div>
+                        <div class="p-2 rounded hover:bg-white/5 flex items-center gap-2 text-zinc-300"><i class="fa-solid fa-download text-emerald-400"></i> Downloads</div>
+                        <div class="p-2 rounded hover:bg-white/5 flex items-center gap-2 text-zinc-300"><i class="fa-solid fa-file text-amber-400"></i> Documents</div>
+                        <div class="p-2 rounded hover:bg-white/5 flex items-center gap-2 text-zinc-300"><i class="fa-solid fa-hard-drive text-zinc-400"></i> Local Disk (C:)</div>
+                    </div>
+                    <div class="flex-1 p-4">
+                        <div class="text-xs font-semibold text-zinc-400 mb-3">Quick Access</div>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer flex flex-col items-center text-center">
+                                <i class="fa-solid fa-folder text-yellow-400 text-3xl mb-2"></i>
+                                <span class="text-xs">Projects</span>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer flex flex-col items-center text-center">
+                                <i class="fa-solid fa-folder text-yellow-400 text-3xl mb-2"></i>
+                                <span class="text-xs">Wallpapers</span>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer flex flex-col items-center text-center">
+                                <i class="fa-solid fa-file-pdf text-red-400 text-3xl mb-2"></i>
+                                <span class="text-xs">Resume.pdf</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getEdgeHTML() {
+            return `
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center gap-2 px-3 py-2 bg-zinc-900 border-b border-white/5 text-xs">
+                        <button class="p-1.5 rounded hover:bg-white/10"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="p-1.5 rounded hover:bg-white/10"><i class="fa-solid fa-arrow-right"></i></button>
+                        <button class="p-1.5 rounded hover:bg-white/10"><i class="fa-solid fa-rotate-right"></i></button>
+                        <input type="text" value="https://www.bing.com" class="flex-1 bg-zinc-800 border border-white/10 rounded-full px-4 py-1 text-zinc-200 focus:outline-none">
+                    </div>
+                    <div class="flex-1 bg-white flex flex-col items-center justify-center text-zinc-800 p-8">
+                        <i class="fa-brands fa-edge text-6xl text-cyan-500 mb-4"></i>
+                        <h2 class="text-2xl font-semibold mb-2">Microsoft Edge</h2>
+                        <p class="text-sm text-zinc-500 mb-6">Fast and secure web browsing powered by Chromium.</p>
+                        <div class="flex gap-4">
+                            <a href="https://www.wikipedia.org" target="_blank" class="px-4 py-2 bg-cyan-600 text-white rounded-lg text-xs font-medium hover:bg-cyan-700">Open Wikipedia</a>
+                            <a href="https://github.com" target="_blank" class="px-4 py-2 bg-zinc-800 text-white rounded-lg text-xs font-medium hover:bg-zinc-900">Open GitHub</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStoreHTML() {
+            return `
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold">Microsoft Store</h2>
+                        <input type="text" placeholder="Search apps..." class="bg-zinc-800 border border-white/10 rounded-lg px-3 py-1.5 text-xs w-64">
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-3 items-center">
+                            <i class="fa-brands fa-discord text-4xl text-indigo-400"></i>
+                            <div>
+                                <h4 class="text-sm font-semibold">Discord</h4>
+                                <p class="text-[10px] text-zinc-400">Chat & Hangout</p>
+                                <button class="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px]">Install</button>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-3 items-center">
+                            <i class="fa-brands fa-spotify text-4xl text-emerald-400"></i>
+                            <div>
+                                <h4 class="text-sm font-semibold">Spotify</h4>
+                                <p class="text-[10px] text-zinc-400">Music & Podcasts</p>
+                                <button class="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px]">Installed</button>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-3 items-center">
+                            <i class="fa-solid fa-gamepad text-4xl text-purple-400"></i>
+                            <div>
+                                <h4 class="text-sm font-semibold">Minecraft</h4>
+                                <p class="text-[10px] text-zinc-400">Game</p>
+                                <button class="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px]">Buy $29.99</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getVsCodeHTML() {
+            return `
+                <div class="flex h-full text-xs">
+                    <div class="w-12 bg-zinc-900 border-r border-white/5 flex flex-col items-center py-4 gap-4 text-zinc-400">
+                        <i class="fa-solid fa-file text-white text-lg"></i>
+                        <i class="fa-solid fa-magnifying-glass hover:text-white cursor-pointer"></i>
+                        <i class="fa-solid fa-code-branch hover:text-white cursor-pointer"></i>
+                        <i class="fa-solid fa-gear mt-auto hover:text-white cursor-pointer"></i>
+                    </div>
+                    <div class="w-48 bg-zinc-900/60 border-r border-white/5 p-3">
+                        <span class="font-semibold text-zinc-400 uppercase text-[10px] tracking-wider mb-2 block">Explorer</span>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 text-sky-400"><i class="fa-brands fa-html5"></i> index.html</div>
+                            <div class="flex items-center gap-2 text-yellow-400"><i class="fa-brands fa-js"></i> script.js</div>
+                            <div class="flex items-center gap-2 text-blue-400"><i class="fa-brands fa-css3-alt"></i> style.css</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-zinc-950 p-4 font-mono text-zinc-200 overflow-auto">
+                        <pre><span class="text-purple-400">doctype</span> html&gt;
+<span class="text-blue-400">&lt;html</span> <span class="text-yellow-300">lang</span>=<span class="text-emerald-300">"en"</span><span class="text-blue-400">&gt;</span>
+<span class="text-blue-400">&lt;head&gt;</span>
+    <span class="text-blue-400">&lt;title&gt;</span>Windows 11<span class="text-blue-400">&lt;/title&gt;</span>
+<span class="text-blue-400">&lt;/head&gt;</span>
+<span class="text-blue-400">&lt;body&gt;</span>
+    <span class="text-zinc-500">&lt;!-- Hello World --&gt;</span>
+    <span class="text-blue-400">&lt;h1&gt;</span>Welcome to Win11 React<span class="text-blue-400">&lt;/h1&gt;</span>
+<span class="text-blue-400">&lt;/body&gt;</span>
+<span class="text-blue-400">&lt;/html&gt;</span></pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSpotifyHTML() {
+            return `
+                <div class="flex h-full">
+                    <div class="w-48 bg-zinc-950 p-4 space-y-3 text-xs">
+                        <div class="font-semibold text-zinc-400">Library</div>
+                        <div class="text-zinc-300 hover:text-white cursor-pointer">Liked Songs</div>
+                        <div class="text-zinc-300 hover:text-white cursor-pointer">Discover Weekly</div>
+                        <div class="text-zinc-300 hover:text-white cursor-pointer">Lo-Fi Beats</div>
+                    </div>
+                    <div class="flex-1 bg-gradient-to-b from-emerald-900/40 to-zinc-900 p-6 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs uppercase font-semibold text-zinc-300">Playlist</span>
+                            <h2 class="text-3xl font-bold mt-2">Windows 11 Chill Beats</h2>
+                        </div>
+                        <div class="flex items-center gap-4 bg-zinc-900/80 p-4 rounded-xl border border-white/10">
+                            <div class="w-12 h-12 rounded bg-emerald-500 flex items-center justify-center text-2xl font-bold"><i class="fa-solid fa-music"></i></div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold">Windows Ambient Chill</h4>
+                                <p class="text-xs text-zinc-400">BlueEdge Music</p>
+                            </div>
+                            <div class="flex items-center gap-4 text-xl">
+                                <i class="fa-solid fa-backward-step cursor-pointer hover:text-emerald-400"></i>
+                                <i class="fa-solid fa-circle-play text-3xl text-emerald-400 cursor-pointer"></i>
+                                <i class="fa-solid fa-forward-step cursor-pointer hover:text-emerald-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSettingsHTML() {
+            return `
+                <div class="flex h-full">
+                    <div class="w-56 bg-zinc-900/60 border-r border-white/5 p-3 space-y-1 text-xs">
+                        <div class="p-2.5 rounded bg-white/10 font-medium flex items-center gap-3"><i class="fa-solid fa-palette text-pink-400"></i> Personalization</div>
+                        <div class="p-2.5 rounded hover:bg-white/5 flex items-center gap-3 text-zinc-300"><i class="fa-solid fa-display text-blue-400"></i> System & Display</div>
+                        <div class="p-2.5 rounded hover:bg-white/5 flex items-center gap-3 text-zinc-300"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Windows Update</div>
+                    </div>
+                    <div class="flex-1 p-6 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-1">Personalization</h3>
+                            <p class="text-xs text-zinc-400">Customize your Windows 11 wallpaper and theme.</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div onclick="document.body.style.backgroundImage = 'url(\\'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop\\')'" class="h-28 rounded-xl bg-cover bg-center border-2 border-blue-500 cursor-pointer shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2560&auto=format&fit=crop')"></div>
+                            <div onclick="document.body.style.backgroundImage = 'url(\\'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2560&auto=format&fit=crop\\')'" class="h-28 rounded-xl bg-cover bg-center border-2 border-transparent hover:border-white/50 cursor-pointer shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2560&auto=format&fit=crop')"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getTerminalHTML() {
+            return `<div id="termOutput" class="p-4 font-mono text-xs flex-1 space-y-1 overflow-auto">
+                <p>Windows PowerShell</p>
+                <p>Copyright (C) Microsoft Corporation. All rights reserved.</p>
+                <br>
+            </div>
+            <div class="flex items-center px-4 py-2 bg-zinc-900 border-t border-white/5 font-mono text-xs">
+                <span class="text-emerald-400 mr-2">PS C:\Users\John&gt;</span>
+                <input id="termInput" type="text" onkeydown="handleTerminalKey(event)" class="flex-1 bg-transparent focus:outline-none text-zinc-100">
+            </div>`;
+        }
+
+        function initTerminal() {
+            document.getElementById('termInput').focus();
+        }
+
+        function handleTerminalKey(e) {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                const out = document.getElementById('termOutput');
+                out.innerHTML += `<p><span class="text-emerald-400">PS C:\\Users\\John&gt;</span> ${val}</p>`;
+                if (val === 'help') {
+                    out.innerHTML += `<p class="text-zinc-400">Available commands: dir, clear, echo [text], date, ver</p>`;
+                } else if (val === 'clear') {
+                    out.innerHTML = '';
+                } else if (val === 'date') {
+                    out.innerHTML += `<p>${new Date()}</p>`;
+                } else if (val === 'ver') {
+                    out.innerHTML += `<p>Microsoft Windows [Version 11.0.22621]</p>`;
+                } else if (val.startsWith('echo ')) {
+                    out.innerHTML += `<p>${val.substring(5)}</p>`;
+                } else if (val !== '') {
+                    out.innerHTML += `<p class="text-red-400">'${val}' is not recognized as an internal or external command.</p>`;
+                }
+                e.target.value = '';
+                out.scrollTop = out.scrollHeight;
+            }
+        }
+
+        function getNotepadHTML() {
+            return `<textarea class="w-full h-full bg-transparent p-4 text-xs font-mono text-zinc-100 resize-none focus:outline-none" placeholder="Type something here..."></textarea>`;
+        }
+
+        function getCalculatorHTML() {
+            return `
+                <div class="p-4 flex flex-col h-full justify-between">
+                    <div id="calcDisplay" class="text-right text-3xl font-light mb-4 py-2 px-3 bg-white/5 rounded-lg">0</div>
+                    <div class="grid grid-cols-4 gap-2 text-sm">
+                        <button onclick="calcBtn('C')" class="p-3 bg-white/10 rounded hover:bg-white/20">C</button>
+                        <button onclick="calcBtn('(')" class="p-3 bg-white/10 rounded hover:bg-white/20">(</button>
+                        <button onclick="calcBtn(')')" class="p-3 bg-white/10 rounded hover:bg-white/20">)</button>
+                        <button onclick="calcBtn('/')" class="p-3 bg-white/10 rounded hover:bg-white/20">÷</button>
+                        <button onclick="calcBtn('7')" class="p-3 bg-white/5 rounded hover:bg-white/15">7</button>
+                        <button onclick="calcBtn('8')" class="p-3 bg-white/5 rounded hover:bg-white/15">8</button>
+                        <button onclick="calcBtn('9')" class="p-3 bg-white/5 rounded hover:bg-white/15">9</button>
+                        <button onclick="calcBtn('*')" class="p-3 bg-white/10 rounded hover:bg-white/20">×</button>
+                        <button onclick="calcBtn('4')" class="p-3 bg-white/5 rounded hover:bg-white/15">4</button>
+                        <button onclick="calcBtn('5')" class="p-3 bg-white/5 rounded hover:bg-white/15">5</button>
+                        <button onclick="calcBtn('6')" class="p-3 bg-white/5 rounded hover:bg-white/15">6</button>
+                        <button onclick="calcBtn('-')" class="p-3 bg-white/10 rounded hover:bg-white/20">-</button>
+                        <button onclick="calcBtn('1')" class="p-3 bg-white/5 rounded hover:bg-white/15">1</button>
+                        <button onclick="calcBtn('2')" class="p-3 bg-white/5 rounded hover:bg-white/15">2</button>
+                        <button onclick="calcBtn('3')" class="p-3 bg-white/5 rounded hover:bg-white/15">3</button>
+                        <button onclick="calcBtn('+')" class="p-3 bg-white/10 rounded hover:bg-white/20">+</button>
+                        <button onclick="calcBtn('0')" class="col-span-2 p-3 bg-white/5 rounded hover:bg-white/15">0</button>
+                        <button onclick="calcBtn('.')" class="p-3 bg-white/5 rounded hover:bg-white/15">.</button>
+                        <button onclick="calcBtn('=')" class="p-3 bg-blue-600 rounded hover:bg-blue-700">=</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let calcExpr = '0';
+        function calcBtn(val) {
+            if (val === 'C') {
+                calcExpr = '0';
+            } else if (val === '=') {
+                try {
+                    calcExpr = String(eval(calcExpr.replace(/×/g, '*').replace(/÷/g, '/')));
+                } catch {
+                    calcExpr = 'Error';
+                }
+            } else {
+                if (calcExpr === '0' || calcExpr === 'Error') calcExpr = val;
+                else calcExpr += val;
+            }
+            document.getElementById('calcDisplay').innerText = calcExpr;
+        }
+
+        function getTaskMgrHTML() {
+            return `
+                <div class="p-6 text-xs">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-semibold">Processes</h3>
+                        <span id="cpuUsage" class="text-emerald-400 font-mono">CPU: 12% | RAM: 4.2 GB</span>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-white/10 text-zinc-400">
+                                <th class="pb-2">Name</th>
+                                <th class="pb-2">CPU</th>
+                                <th class="pb-2">Memory</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-mono">
+                            <tr><td class="py-2">explorer.exe</td><td>1.2%</td><td>128 MB</td></tr>
+                            <tr><td class="py-2">msedge.exe</td><td>4.5%</td><td>850 MB</td></tr>
+                            <tr><td class="py-2">Code.exe</td><td>2.1%</td><td>610 MB</td></tr>
+                            <tr><td class="py-2">Spotify.exe</td><td>0.8%</td><td>240 MB</td></tr>
+                            <tr><td class="py-2">WindowsTerminal.exe</td><td>0.1%</td><td>45 MB</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function initTaskMgr() {
+            setInterval(() => {
+                const cpu = Math.floor(Math.random() * 15) + 8;
+                const el = document.getElementById('cpuUsage');
+                if (el) el.innerText = `CPU: ${cpu}% | RAM: 4.2 GB`;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
