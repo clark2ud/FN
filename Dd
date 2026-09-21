@@ -1,15 +1,0 @@
-evvls
-.
-
-docs online
-v3.0.0
-FORTNITE / EXTERNAL / FROM SCRATCH
-Zero to External.
-No prior knowledge assumed. We start with what a vector even is, build up through the math and memory reading, and end with a working ESP and aimbot. Every function explained like you're seeing it for the first time.
-10 sections 20 code snippets read time ~3hr
-// before you start  you need a driver to read the game's memory. i use a custom dtc driver — it's free on my github. grab it, build it, load it, then come back here.  github.com/clark2ud/dtc-driver
-CONTENTS
-
-
-evvls — built by clark
-last updated: sep 2026
