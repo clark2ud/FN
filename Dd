@@ -402,11 +402,19 @@ pre {
   max-height: 400px;
   overflow-y: auto;
 }
-pre .kw { color: var(--accent); }
-pre .str { color: var(--green); }
-pre .num { color: var(--amber); }
-pre .cm { color: var(--text-mute); font-style: italic; }
 
+
+.cm { color: #888; font-style: italic; }
+.str { color: #a5c261; }
+.kw { color: #cc7832; font-weight: bold; }
+.num { color: #6897bb; }
+
+
+span.cm span.str, 
+span.cm span.kw, 
+span.cm span.num {
+    color: inherit; /* Let the inner span color dominate, or keep them muted if preferred */
+}
 .explanation {
   margin-top: 12px;
   padding: 16px 20px;
@@ -551,6 +559,8 @@ footer {
 
 </div>
 <script>
+
+
 const templates = {
 fortnite: {
   label: "FORTNITE",
@@ -1825,42 +1835,101 @@ EventBus.fire("player_died", victim, attacker)`,
 };
 
 // viewer count — stored in localStorage, increments per visit
-(function() {
-  let count = localStorage.getItem('evvls_viewers');
-  if (!count) {
-    count = 1337 + Math.floor(Math.random() * 500);
+(async function() {
+  const apiKey = 'ut_jnC2uK7OKi3D5GuabnG1uaapJKcW21JghZFkaV98'; // Replace with your key
+  const counterSlug = 'first-counter-5626';
+  const teamSlug = 'clark2lits-team-5626';
+  const baseUrl = `https://api.counterapi.dev/v2/${teamSlug}/${counterSlug}`;
+
+  try {
+    // 1. Fetch current count
+    const response = await fetch(`${baseUrl}`, {
+      headers: { 'Authorization': `Bearer ${apiKey}` }
+    });
+    const data = await response.json();
+    
+    if (data && data.data) {
+      const currentCount = data.data.up_count;
+      document.getElementById('viewer-count').textContent = currentCount.toLocaleString();
+    } else {
+      throw new Error('Invalid API response');
+    }
+  } catch (error) {
+    console.error('Failed to fetch count:', error);
+    document.getElementById('viewer-count').textContent = 'Error';
   }
-  count = parseInt(count) + 1;
-  localStorage.setItem('evvls_viewers', count);
-  document.getElementById('viewer-count').textContent = count.toLocaleString();
 })();
-
-// syntax highlighting with proper word boundaries
 function highlight(code) {
-  let escaped = code
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    // 1. Escape HTML entities to prevent breaking the parser
+    let html = code
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
-  // comments
-  escaped = escaped.replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>');
-  escaped = escaped.replace(/(--[^\n]*)/g, '<span class="cm">$1</span>');
-  // strings
-  escaped = escaped.replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>');
-  // preprocessor
-  escaped = escaped.replace(/^(#.*)$/gm, '<span class="kw">$1</span>');
-  // keywords — using word boundaries properly
-  escaped = escaped.replace(/\b(struct|class|inline|const|constexpr|static|void|bool|int|float|double|char|auto|return|if|else|for|while|switch|case|break|continue|new|delete|this|true|false|nullptr|using|namespace|template|typename|public|private|protected|virtual|override|operator|sizeof|reinterpret_cast|static_cast|include|pragma|uintptr_t|uint8_t|uint32_t|uint64_t|local|function|end|then|elseif|do|and|or|not|nil|in|repeat|until)\b/g, '<span class="kw">$1</span>');
-  // types
-  escaped = escaped.replace(/\b(Vector2|Vector3|Camera|FQuat|FTransform|D3DMATRIX|_MATRIX|ImVec2|ImColor|ImDrawList|ImU32|HRESULT|HWND|HANDLE|DWORD|UINT|WPARAM|LPARAM|BOOL|FLOAT|MSG|MARGINS|RECT|POINT|LONG_PTR|FNRot)\b/g, '<span class="kw">$1</span>');
-  // functions
-  escaped = escaped.replace(/\b(read|write|FindProcess|SetupDriver|GetBase|BypassCR3|getCamera|PW2S|getEntityBone|is_visible|calculate_angle|normalize_angle|smooth_aim|select_target|in_fov|draw_esp_box|draw_skeleton|hijack_window|apply_window_surface|render_loop|renderMenu|renderVisuals|gameCache|get_process_wnd|ToMatrixWithScale|MatrixMultiplication|Matrix|dot|distance|atan2f|atan2|asin|sin|cos|tanf|sqrtf|fmax|hypot|printf|exit|Sleep|FindWindowA|FindWindowW|GetWindowLongPtrA|SetWindowLongPtrA|SetLayeredWindowAttributes|UpdateWindow|ShowWindow|DwmExtendFrameIntoClientArea|PeekMessage|TranslateMessage|DispatchMessage|GetForegroundWindow|IsWindow|GetAsyncKeyState|GetWindow|SetWindowPos|GetClientRect|ClientToScreen|GetCursorPos|ScreenToClient|Connect)\b/g, '<span class="num">$1</span>');
-  // imgui
-  escaped = escaped.replace(/\b(ImGui::[A-Za-z]+|ImGui_Impl[A-Za-z_]+)\b/g, '<span class="num">$1</span>');
-  // numbers
-  escaped = escaped.replace(/\b(0x[0-9A-Fa-f]+|\d+\.?\d*f?)\b/g, '<span class="num">$1</span>');
+    // 2. Strings (Must be BEFORE comments)
+    // Handles double quotes
+    html = html.replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>');
+    // Handles single quotes (for Lua/C++ compatibility)
+    html = html.replace(/('(?:[^'\\]|\\.)*')/g, '<span class="str">$1</span>');
 
-  return escaped;
+    // 3. Comments (Must be AFTER strings)
+    // C++ Style: //
+    html = html.replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>');
+    // C/SQL Style: --
+    html = html.replace(/(--[^\n]*)/g, '<span class="cm">$1</span>');
+    // Multi-line: /* */
+    html = html.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="cm">$1</span>');
+
+    // 4. Preprocessor Directives
+    html = html.replace(/^(#.*)$/gm, '<span class="kw">$1</span>');
+
+    // 5. Keywords & Types
+    const keywords = [
+        'struct', 'class', 'inline', 'const', 'constexpr', 'static', 'void', 
+        'bool', 'int', 'float', 'double', 'char', 'auto', 'return', 'if', 
+        'else', 'for', 'while', 'switch', 'case', 'break', 'continue', 
+        'new', 'delete', 'this', 'true', 'false', 'nullptr', 'using', 
+        'namespace', 'template', 'typename', 'public', 'private', 'protected', 
+        'virtual', 'override', 'operator', 'sizeof', 'reinterpret_cast', 
+        'static_cast', 'include', 'pragma', 'uintptr_t', 'uint8_t', 'uint32_t', 
+        'uint64_t', 'local', 'function', 'end', 'then', 'elseif', 'do', 
+        'and', 'or', 'not', 'nil', 'in', 'repeat', 'until', 'Vector2', 
+        'Vector3', 'Camera', 'FQuat', 'FTransform', 'D3DMATRIX', '_MATRIX', 
+        'ImVec2', 'ImColor', 'ImDrawList', 'ImU32', 'HRESULT', 'HWND', 
+        'HANDLE', 'DWORD', 'UINT', 'WPARAM', 'LPARAM', 'BOOL', 'FLOAT', 
+        'MSG', 'MARGINS', 'RECT', 'POINT', 'LONG_PTR', 'FNRot'
+    ];
+    const kwPattern = '\\b(' + keywords.join('|') + ')\\b';
+    html = html.replace(new RegExp(kwPattern, 'g'), '<span class="kw">$1</span>');
+
+    // 6. ImGui / Namespace Functions
+    html = html.replace(/(?:^|\b)(ImGui::[A-Za-z_]+|ImGui_Impl[A-Za-z_]+)/g, '<span class="num">$1</span>');
+
+    // 7. API Functions
+    const apiFunctions = [
+        'read', 'write', 'FindProcess', 'SetupDriver', 'GetBase', 'BypassCR3', 
+        'getCamera', 'PW2S', 'getEntityBone', 'is_visible', 'calculate_angle', 
+        'normalize_angle', 'smooth_aim', 'select_target', 'in_fov', 'draw_esp_box', 
+        'draw_skeleton', 'hijack_window', 'apply_window_surface', 'render_loop', 
+        'renderMenu', 'renderVisuals', 'gameCache', 'get_process_wnd', 
+        'ToMatrixWithScale', 'MatrixMultiplication', 'Matrix', 'dot', 'distance', 
+        'atan2f', 'atan2', 'asin', 'sin', 'cos', 'tanf', 'sqrtf', 'fmax', 
+        'hypot', 'printf', 'exit', 'Sleep', 'FindWindowA', 'FindWindowW', 
+        'GetWindowLongPtrA', 'SetWindowLongPtrA', 'SetLayeredWindowAttributes', 
+        'UpdateWindow', 'ShowWindow', 'DwmExtendFrameIntoClientArea', 
+        'PeekMessage', 'TranslateMessage', 'DispatchMessage', 'GetForegroundWindow', 
+        'IsWindow', 'GetAsyncKeyState', 'GetWindow', 'SetWindowPos', 
+        'GetClientRect', 'ClientToScreen', 'GetCursorPos', 'ScreenToClient', 
+        'Connect'
+    ];
+    const apiPattern = '\\b(' + apiFunctions.join('|') + ')\\b';
+    html = html.replace(new RegExp(apiPattern, 'g'), '<span class="num">$1</span>');
+
+    // 8. Numbers
+    // Negative lookbehind avoids matching numbers inside HTML attributes (e.g., class="...")
+    html = html.replace(/(?<!class="[^"]*)\b(0x[0-9A-Fa-f]+|\d+\.?\d*f?)\b/g, '<span class="num">$1</span>');
+
+    return html;
 }
 
 // dom refs
