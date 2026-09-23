@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIGHTHAWK — Kernel Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070809;
+  --surface:#0c0e10;
+  --surface-2:#101315;
+  --surface-3:#14171a;
+  --line:#1b2024;
+  --line-soft:#131619;
+  --text:#e6e9eb;
+  --muted:#6e777d;
+  --dim:#3f464b;
+  --acid:#c8f542;
+  --acid-dim:rgba(200,245,66,.07);
+  --red:#ff4d6d;
+  --gold:#ffd166;
+  --radius:10px;
+  --max:1160px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}
+::selection{background:var(--acid);color:#000}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+img{display:block}
+.container{width:min(var(--max),calc(100% - 40px));margin:auto}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#22282c;border-radius:99px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#31383d}
+
+/* REVEAL ON SCROLL */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv-d1{transition-delay:.08s}.rv-d2{transition-delay:.16s}.rv-d3{transition-delay:.24s}.rv-d4{transition-delay:.32s}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,8,9,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft)}
+.nav-inner{height:62px;width:min(var(--max),calc(100% - 40px));margin:auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:.05em;cursor:pointer;transition:opacity .2s}
+.logo:hover{opacity:.85}
+.logo-mark{width:26px;height:26px;background:var(--acid);color:#000;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;border-radius:4px;box-shadow:0 0 18px rgba(200,245,66,.35)}
+.nav-links{display:flex;gap:26px;font-size:13px;color:var(--muted)}
+.nav-links a{transition:color .2s;cursor:pointer;position:relative}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:1px;background:var(--acid);transition:width .25s var(--ease)}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-status{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--acid);border:1px solid rgba(200,245,66,.16);padding:6px 12px;border-radius:99px;background:var(--acid-dim)}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--acid);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* HERO */
+.hero{min-height:100dvh;display:flex;align-items:center;position:relative;padding:120px 0 60px;overflow:hidden}
+.hero::before{content:"";position:absolute;width:800px;height:800px;top:-400px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(200,245,66,.04),transparent 65%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;opacity:.25;background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 75% 60% at 50% 40%,black,transparent);pointer-events:none}
+.hero-inner{position:relative;display:grid;grid-template-columns:1fr 400px;gap:64px;align-items:center;width:min(var(--max),calc(100% - 40px));margin:auto}
+.hero h1{font-size:clamp(48px,7vw,88px);line-height:.95;letter-spacing:-.05em;font-weight:700}
+.hero h1 .hl{display:block;overflow:hidden}
+.hero h1 .hl span{display:block;transform:translateY(110%);animation:riseUp .9s var(--ease) forwards}
+.hero h1 .hl:nth-child(2) span{animation-delay:.12s}
+.hero h1 .hl:nth-child(3) span{animation-delay:.24s}
+@keyframes riseUp{to{transform:none}}
+.hero h1 em{font-style:normal;color:var(--acid)}
+.hero-sub{margin-top:22px;color:var(--muted);font-size:15px;line-height:1.7;max-width:460px;opacity:0;animation:fadeUp .8s var(--ease) .45s forwards}
+.hero-sub b{color:var(--text);font-weight:600}
+.hero-ctas{display:flex;gap:10px;margin-top:32px;opacity:0;animation:fadeUp .8s var(--ease) .6s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:var(--radius);font-size:13px;font-weight:600;transition:all .25s var(--ease);border:none}
+.btn-primary{background:var(--acid);color:#0a0c05}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,245,66,.22)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:#3a4247;background:var(--surface)}
+
+/* TERMINAL */
+.term{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);opacity:0;animation:fadeUp .9s var(--ease) .5s forwards;transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.term:hover{transform:translateY(-4px);box-shadow:0 32px 70px rgba(0,0,0,.55)}
+.term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.term-dot{width:10px;height:10px;border-radius:50%}
+.term-title{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--dim)}
+.term-body{padding:20px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:2}
+.tl{color:var(--muted);opacity:0;transform:translateX(-8px);animation:tlIn .4s ease forwards}
+.tl:nth-child(1){animation-delay:.9s}.tl:nth-child(2){animation-delay:1.15s}.tl:nth-child(3){animation-delay:1.4s}
+.tl:nth-child(4){animation-delay:1.65s}.tl:nth-child(5){animation-delay:1.9s}.tl:nth-child(6){animation-delay:2.15s}
+.tl:nth-child(7){animation-delay:2.4s}
+@keyframes tlIn{to{opacity:1;transform:none}}
+.tl .p{color:var(--acid)}
+.tl .ok{color:var(--acid)}
+.tl .wr{color:var(--gold)}
+.tl .v{color:var(--text)}
+.tc{display:inline-block;width:8px;height:14px;background:var(--acid);vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* TICKER */
+.ticker-wrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);overflow:hidden;padding:12px 0;position:relative}
+.ticker-wrap::before,.ticker-wrap::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.ticker-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.ticker-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+.ticker{display:flex;gap:52px;white-space:nowrap;animation:scroll 30s linear infinite;width:max-content}
+.ticker-wrap:hover .ticker{animation-play-state:paused}
+.ticker span{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:10px}
+.ticker span::before{content:">";color:var(--acid);font-size:9px}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{padding:100px 0}
+.sec-head{margin-bottom:52px}
+.sec-kicker{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--acid);text-transform:uppercase;letter-spacing:.2em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec-kicker::before{content:"";width:24px;height:1px;background:var(--acid)}
+.sec-title{font-size:clamp(32px,4.5vw,48px);letter-spacing:-.04em;font-weight:700;line-height:1.05}
+.sec-desc{color:var(--muted);font-size:14px;line-height:1.7;margin-top:14px;max-width:440px}
+
+/* SHOWCASE BAND */
+.showcase{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
+.showcase-img{width:100%;height:440px;object-fit:cover;opacity:.6;filter:saturate(.9);transform:scale(1.08);transition:transform 6s var(--ease)}
+.showcase.in .showcase-img{transform:scale(1)}
+.showcase-overlay{position:absolute;inset:0;display:flex;align-items:center;background:linear-gradient(90deg,rgba(7,8,9,.94) 0%,rgba(7,8,9,.45) 60%,rgba(7,8,9,.85) 100%)}
+.showcase-inner{width:min(var(--max),calc(100% - 40px));margin:auto}
+.showcase-inner h3{font-size:clamp(26px,3.5vw,40px);letter-spacing:-.04em;font-weight:700;max-width:520px;line-height:1.1}
+.showcase-inner h3 em{font-style:normal;color:var(--acid)}
+.showcase-inner p{color:var(--muted);font-size:14px;margin-top:14px;max-width:440px;line-height:1.7}
+
+/* PRODUCT GRID */
+.pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.pcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;transition:transform .35s var(--ease),border-color .35s,box-shadow .35s;overflow:hidden}
+.pcard::before{content:"";position:absolute;inset:0;background:radial-gradient(500px circle at var(--mx,50%) var(--my,50%),rgba(200,245,66,.04),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none;z-index:2}
+.pcard:hover::before{opacity:1}
+.pcard:hover{transform:translateY(-5px);border-color:#2a3136;box-shadow:0 22px 54px rgba(0,0,0,.45)}
+.pcard-imgwrap{height:180px;overflow:hidden;border-bottom:1px solid var(--line);position:relative}
+.pcard-imgwrap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(12,14,16,.9) 100%)}
+.pcard-img{width:100%;height:100%;object-fit:cover;filter:saturate(.85) brightness(.85);transition:transform .6s var(--ease),filter .6s}
+.pcard:hover .pcard-img{transform:scale(1.06);filter:saturate(1) brightness(.95)}
+.pcard-body{padding:28px 32px 32px;display:flex;flex-direction:column;flex:1}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.pcard-icon{width:46px;height:46px;border-radius:var(--radius);background:var(--acid-dim);border:1px solid rgba(200,245,66,.12);display:grid;place-items:center;font-size:20px;transition:transform .35s var(--ease)}
+.pcard:hover .pcard-icon{transform:rotate(-8deg) scale(1.08)}
+.pbadge{font-family:"JetBrains Mono",monospace;font-size:9px;padding:4px 10px;border-radius:99px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.b-hot{background:rgba(255,77,109,.08);color:var(--red);border:1px solid rgba(255,77,109,.2)}
+.b-pop{background:var(--acid-dim);color:var(--acid);border:1px solid rgba(200,245,66,.15)}
+.pcard-label{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--acid);text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px}
+.pcard-title{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:10px}
+.pcard-desc{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:22px}
+.pfeats{list-style:none;display:grid;gap:8px;margin-bottom:24px}
+.pfeats li{color:#9aa2a7;font-size:12px;display:flex;align-items:center;gap:10px}
+.pfeats li::before{content:"";width:12px;height:12px;border-radius:3px;flex-shrink:0;background:var(--acid-dim);border:1px solid rgba(200,245,66,.15);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8f542' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");background-size:8px;background-position:center;background-repeat:no-repeat}
+.pcard-bottom{margin-top:auto;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.price{font-size:28px;font-weight:700;letter-spacing:-.03em}
+.price-old{font-size:12px;color:var(--dim);text-decoration:line-through;font-family:"JetBrains Mono",monospace;margin-left:6px}
+.price-note{font-size:9px;color:var(--dim);font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+
+/* DRV TOGGLE */
+.drv-toggle{display:flex;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:3px;margin-bottom:22px;gap:3px}
+.drv-toggle button{flex:1;padding:9px;border:none;background:transparent;color:var(--muted);font-size:11px;font-weight:600;border-radius:6px;font-family:"JetBrains Mono",monospace;transition:all .25s var(--ease)}
+.drv-toggle button.active{background:var(--acid);color:#000}
+.drv-toggle button:not(.active):hover{color:var(--text)}
+
+/* PRODUCT PAGE (FULL) */
+.ppage{display:none;padding:100px 0 80px;min-height:100dvh}
+.ppage.active{display:block;animation:pageIn .5s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.ppage-hero{display:grid;grid-template-columns:1fr 360px;gap:56px;align-items:start;margin-bottom:64px}
+.ppage-bannerwrap{height:240px;border-radius:var(--radius);border:1px solid var(--line);margin-bottom:28px;overflow:hidden;position:relative}
+.ppage-bannerwrap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(7,8,9,.75) 100%)}
+.ppage-banner{width:100%;height:100%;object-fit:cover;filter:saturate(.85) brightness(.8);transition:transform 8s var(--ease)}
+.ppage-bannerwrap:hover .ppage-banner{transform:scale(1.05)}
+.ppage-badge{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;padding:5px 12px;border-radius:99px;margin-bottom:16px;background:var(--acid-dim);color:var(--acid);border:1px solid rgba(200,245,66,.15);text-transform:uppercase;letter-spacing:.12em}
+.ppage h1{font-size:clamp(40px,6vw,72px);letter-spacing:-.05em;font-weight:700;line-height:.98;margin-bottom:18px}
+.ppage-sub{color:var(--muted);font-size:15px;line-height:1.75;max-width:520px;margin-bottom:28px}
+.ppage-meta{display:flex;gap:32px;flex-wrap:wrap}
+.ppm-item{display:flex;flex-direction:column;gap:4px}
+.ppm-val{font-size:20px;font-weight:700}
+.ppm-val em{font-style:normal;color:var(--acid)}
+.ppm-lbl{font-size:9px;color:var(--dim);font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.1em}
+
+/* FEATURE GRID ON PPAGE */
+.pp-feats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:56px}
+.pp-feat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:all .3s var(--ease)}
+.pp-feat:hover{border-color:#2a3136;background:var(--surface-2);transform:translateY(-3px)}
+.pp-feat-icon{width:38px;height:38px;border-radius:9px;background:var(--acid-dim);border:1px solid rgba(200,245,66,.1);display:grid;place-items:center;font-size:16px;margin-bottom:14px;transition:transform .3s var(--ease)}
+.pp-feat:hover .pp-feat-icon{transform:scale(1.12)}
+.pp-feat h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.pp-feat p{color:var(--muted);font-size:12px;line-height:1.65}
+
+/* CHECKOUT SIDEBAR */
+.co-side{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;position:sticky;top:80px}
+.co-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.co-price{font-size:38px;font-weight:700;letter-spacing:-.04em}
+.co-old{font-size:13px;color:var(--dim);text-decoration:line-through;font-family:"JetBrains Mono",monospace}
+.co-note{font-size:10px;color:var(--dim);font-family:"JetBrains Mono",monospace;margin-bottom:20px}
+.co-label{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.co-opts{display:grid;gap:6px;margin-bottom:16px}
+.co-opt{display:flex;align-items:center;gap:11px;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;transition:all .2s var(--ease)}
+.co-opt:hover{border-color:#3a4247;transform:translateX(3px)}
+.co-opt.selected{border-color:var(--acid);background:rgba(200,245,66,.03)}
+.ci{width:30px;height:30px;border-radius:7px;flex-shrink:0;display:grid;place-items:center;font-weight:700;font-size:12px;font-family:"JetBrains Mono",monospace}
+.ci-btc{background:rgba(247,147,26,.1);color:#f7931a}
+.ci-eth{background:rgba(98,126,234,.1);color:#8a9eff}
+.ci-ltc{background:rgba(52,93,157,.1);color:#a5b9d5}
+.ci-usdt{background:rgba(38,161,123,.1);color:#4cd3a5}
+.cn{font-size:12px;font-weight:600}
+.cnet{font-size:9px;color:var(--dim);font-family:"JetBrains Mono",monospace}
+.ccheck{margin-left:auto;width:16px;height:16px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;transition:all .2s var(--ease)}
+.co-opt.selected .ccheck{border-color:var(--acid);background:var(--acid);box-shadow:0 0 10px rgba(200,245,66,.4)}
+.co-btn{width:100%;padding:13px;border-radius:10px;border:none;background:var(--acid);color:#000;font-weight:700;font-size:13px;transition:all .25s var(--ease);margin-bottom:12px}
+.co-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,245,66,.22)}
+.co-btn:active{transform:translateY(0)}
+.co-meta{display:grid;gap:6px}
+.co-meta span{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--dim);font-family:"JetBrains Mono",monospace}
+.co-meta span::before{content:">";color:var(--acid);font-size:9px}
+
+/* VERSION TOGGLE ON PPAGE */
+.ver-toggle{display:flex;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:3px;margin-bottom:20px;gap:3px}
+.ver-toggle button{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);font-size:11px;font-weight:600;border-radius:6px;font-family:"JetBrains Mono",monospace;transition:all .25s var(--ease)}
+.ver-toggle button.active{background:var(--acid);color:#000}
+.ver-toggle button:not(.active):hover{color:var(--text)}
+
+/* STRIP */
+.strip{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.strip-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.strip-item{padding:40px 32px;border-right:1px solid var(--line);transition:background .3s}
+.strip-item:last-child{border-right:none}
+.strip-item:hover{background:var(--surface-2)}
+.strip-num{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--acid);margin-bottom:14px;display:block}
+.strip-item h4{font-size:15px;font-weight:600;margin-bottom:8px}
+.strip-item p{color:var(--muted);font-size:12px;line-height:1.65}
+
+/* FAQ */
+.faq-wrap{max-width:760px}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item:first-child{border-top:1px solid var(--line)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);padding:22px 0;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;text-align:left;gap:16px;transition:color .2s,padding-left .25s var(--ease)}
+.faq-q:hover{color:var(--acid);padding-left:6px}
+.faq-icon{width:26px;height:26px;border-radius:6px;flex-shrink:0;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:15px;transition:all .3s var(--ease);font-weight:400}
+.faq-item.open .faq-icon{transform:rotate(45deg);border-color:var(--acid);color:var(--acid)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s var(--ease),padding .35s var(--ease)}
+.faq-item.open .faq-a{max-height:200px;padding-bottom:22px}
+.faq-a p{color:var(--muted);font-size:13px;line-height:1.75;max-width:620px}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;margin-bottom:32px;transition:color .2s,gap .25s var(--ease);background:none;border:none;padding:0;cursor:pointer}
+.back-btn:hover{color:var(--acid);gap:12px}
+
+/* PAY MODAL */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:16px;width:min(440px,100%);position:relative;animation:slideUp .35s var(--ease);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{position:absolute;top:16px;right:16px;z-index:10;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted);font-size:14px;display:grid;place-items:center;transition:all .2s;cursor:pointer}
+.modal-close:hover{background:rgba(255,255,255,.08);color:var(--text);transform:rotate(90deg)}
+.pay-body{text-align:center;padding:36px}
+.pay-badge{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;padding:5px 12px;border-radius:99px;margin-bottom:14px;background:var(--acid-dim);color:var(--acid);border:1px solid rgba(200,245,66,.15);text-transform:uppercase;letter-spacing:.12em}
+.pay-amount{font-size:44px;font-weight:700;letter-spacing:-.04em;margin:10px 0 4px}
+.pay-name{color:var(--muted);font-size:13px;margin-bottom:22px}
+.qr-box{width:170px;height:170px;margin:0 auto 18px;border-radius:14px;background:#fff;padding:13px;display:grid;place-items:center}
+.qr-box svg{width:100%;height:100%}
+.pay-addr{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 13px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);word-break:break-all;margin-bottom:14px;display:flex;align-items:center;gap:10px;justify-content:space-between;text-align:left}
+.copy-btn{padding:5px 10px;border-radius:5px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:10px;font-family:"JetBrains Mono",monospace;cursor:pointer;transition:all .2s;flex-shrink:0}
+.copy-btn:hover{border-color:var(--acid);color:var(--acid)}
+.pay-timer{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--gold);margin-bottom:12px}
+.pay-status{font-size:12px;color:var(--muted)}
+.mock-note{margin-top:16px;padding:10px 14px;border:1px dashed rgba(255,209,102,.35);border-radius:8px;color:var(--gold);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:56px 0 36px;background:var(--surface)}
+.foot-grid{display:grid;grid-template-columns:1fr auto;gap:48px;margin-bottom:40px}
+.foot-brand p{color:var(--muted);font-size:12px;line-height:1.7;max-width:300px;margin-top:14px}
+.foot-links{display:flex;gap:40px}
+.foot-col h5{font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px}
+.foot-col a{display:block;color:var(--muted);font-size:12px;margin-bottom:9px;transition:color .2s,transform .2s var(--ease);cursor:pointer}
+.foot-col a:hover{color:var(--acid);transform:translateX(3px)}
+.foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--dim);font-family:"JetBrains Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .term{display:none}
+  .pgrid{grid-template-columns:1fr}
+  .ppage-hero{grid-template-columns:1fr;gap:40px}
+  .pp-feats{grid-template-columns:1fr}
+  .strip-grid{grid-template-columns:repeat(2,1fr)}
+  .strip-item{border-bottom:1px solid var(--line)}
+  .co-side{position:static}
+  .foot-grid{grid-template-columns:1fr}
+  .showcase-img{height:360px}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .hero-ctas .btn{flex:1}
+  .strip-grid{grid-template-columns:1fr}
+  .strip-item{border-right:none}
+  .foot-links{flex-wrap:wrap;gap:24px}
+  .pcard-bottom{flex-direction:column;align-items:flex-start}
+  .pcard-body{padding:24px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo" id="logoBtn"><span class="logo-mark">N</span>NIGHTHAWK</div>
+    <div class="nav-links">
+      <a id="navProducts">Products</a>
+      <a id="navFeatures">Features</a>
+      <a id="navFaq">FAQ</a>
+      <a>Discord</a>
+    </div>
+    <div class="nav-status"><span class="nav-dot"></span>UNDETECTED</div>
+  </div>
+</nav>
+
+<!-- HOME VIEW -->
+<div id="homeView">
+
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div>
+      <h1><span class="hl"><span>Own the</span></span><span class="hl"><span><em>kernel.</em></span></span><span class="hl"><span>Own the game.</span></span></h1>
+      <p class="hero-sub">Ring 0 driver, full external suite, aimbot method, and C++ template. <b>Zero detections since launch.</b> Crypto only, instant delivery, lifetime updates.</p>
+      <div class="hero-ctas">
+        <a href="#products" class="btn btn-primary">Browse products</a>
+        <a class="btn btn-ghost">Discord</a>
+      </div>
+    </div>
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dot" style="background:#ff5f57"></span>
+        <span class="term-dot" style="background:#febc2e"></span>
+        <span class="term-dot" style="background:#28c840"></span>
+        <span class="term-title">nhawk@ring0:~</span>
+      </div>
+      <div class="term-body">
+        <div class="tl"><span class="p">$</span> ./nhawk --status</div>
+        <div class="tl"><span class="ok">[OK]</span> driver loaded <span class="v">ntoskrnl.exe</span></div>
+        <div class="tl"><span class="ok">[OK]</span> EAC bypass <span class="v">active</span></div>
+        <div class="tl"><span class="ok">[OK]</span> BattlEye <span class="v">evaded</span></div>
+        <div class="tl"><span class="ok">[OK]</span> HWID spoof <span class="v">clean</span></div>
+        <div class="tl"><span class="wr">[!]</span> fortnite.exe <span class="v">attached</span></div>
+        <div class="tl"><span class="p">$</span> <span class="tc"></span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <span>KERNEL DRIVER FULLY UD</span>
+    <span>EAC BATTLEYE VANGUARD BYPASS</span>
+    <span>INSTANT CRYPTO DELIVERY</span>
+    <span>SOURCE CODE AVAILABLE</span>
+    <span>24/7 DISCORD SUPPORT</span>
+    <span>LIFETIME UPDATES INCLUDED</span>
+    <span>ZERO BANS SINCE LAUNCH</span>
+    <span>STREAM PROOF OVERLAY</span>
+  </div>
+</div>
+
+<section id="products">
+  <div class="container">
+    <div class="sec-head rv">
+      <div class="sec-kicker">The catalog</div>
+      <h2 class="sec-title">The arsenal.</h2>
+      <p class="sec-desc">Four tools. No resold garbage. Tested on live accounts before every release.</p>
+    </div>
+    <div class="pgrid">
+
+      <article class="pcard rv" data-product="driver">
+        <div class="pcard-imgwrap"><img class="pcard-img" src="https://kimi-web-img.kimi.ai/img/as1.ftcdn.net/6681effaa7e012020a96284cc932df034933dcd1.jpg" alt="CPU on dark circuit board"></div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <div class="pcard-icon">&#9881;</div>
+            <span class="pbadge b-hot">Best Seller</span>
+          </div>
+          <div class="pcard-label">Ring 0 / Kernel</div>
+          <h3 class="pcard-title">Kernel Driver</h3>
+          <p class="pcard-desc">Signed kernel driver with manual mapping and hypervisor bypass. Full anti-cheat evasion with HWID spoofing.</p>
+          <ul class="pfeats">
+            <li>Signed and mapped, no test mode</li>
+            <li>EAC, BattlEye, Vanguard bypass</li>
+            <li>Read and write process memory</li>
+            <li>HWID spoofing included</li>
+          </ul>
+          <div class="drv-toggle" id="drvToggle">
+            <button class="active" data-v="compiled">Compiled</button>
+            <button data-v="src">Source</button>
+          </div>
+          <div class="pcard-bottom">
+            <div>
+              <span class="price" id="drvCardPrice">$149</span>
+              <span class="price-old">$199</span>
+              <div class="price-note">Crypto only</div>
+            </div>
+            <button class="btn btn-primary view-btn" data-page="driver">View product</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard rv rv-d1" data-product="cheat">
+        <div class="pcard-imgwrap"><img class="pcard-img" src="https://kimi-web-img.kimi.ai/img/thumbs.dreamstime.com/ac577a6fd97b3790c297c69a1028a472833bcce0.jpg" alt="RGB gaming battlestation"></div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <div class="pcard-icon">&#127919;</div>
+            <span class="pbadge b-pop">Popular</span>
+          </div>
+          <div class="pcard-label">External / Full Suite</div>
+          <h3 class="pcard-title">Fortnite Full UD Cheat</h3>
+          <p class="pcard-desc">Complete external cheat on our private driver. Aimbot, ESP, radar, stream-proof overlay. Auto-updates every patch.</p>
+          <ul class="pfeats">
+            <li>Silent and legit aimbot modes</li>
+            <li>Player, loot, chest ESP</li>
+            <li>Stream-proof OBS bypass</li>
+            <li>Config system included</li>
+          </ul>
+          <div class="pcard-bottom">
+            <div>
+              <span class="price">$99</span>
+              <span class="price-old">$129</span>
+              <div class="price-note">Crypto only</div>
+            </div>
+            <button class="btn btn-primary view-btn" data-page="cheat">View product</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard rv rv-d2" data-product="template">
+        <div class="pcard-imgwrap"><img class="pcard-img" src="https://kimi-web-img.kimi.ai/img/www.shutterstock.com/d50d386a8c54312c0a95cec2ef481f7c3b14c317.jpg" alt="Code on dark screen"></div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <div class="pcard-icon">&#128230;</div>
+            <span class="pbadge b-pop">Source</span>
+          </div>
+          <div class="pcard-label">C++20 / Template</div>
+          <h3 class="pcard-title">External Cheat Template</h3>
+          <p class="pcard-desc">Full C++20 base with overlay, memory class, entity loop, rendering. Documented, commented, ready to extend.</p>
+          <ul class="pfeats">
+            <li>Clean C++20 codebase</li>
+            <li>ImGui and DX11 renderer</li>
+            <li>Memory abstraction layer</li>
+            <li>Entity caching and bones</li>
+          </ul>
+          <div class="pcard-bottom">
+            <div>
+              <span class="price">$79</span>
+              <span class="price-old">$99</span>
+              <div class="price-note">Crypto only</div>
+            </div>
+            <button class="btn btn-primary view-btn" data-page="template">View product</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard rv rv-d3" data-product="method">
+        <div class="pcard-imgwrap"><img class="pcard-img" src="https://kimi-web-img.kimi.ai/img/www.shutterstock.com/3f04300f69a182b3292c1e3e59a622d10cc9b2c3.jpg" alt="Dark motherboard close-up"></div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <div class="pcard-icon">&#128218;</div>
+            <span class="pbadge b-pop">Guide</span>
+          </div>
+          <div class="pcard-label">Technical Writeup</div>
+          <h3 class="pcard-title">Aimbot Method</h3>
+          <p class="pcard-desc">Complete writeup on building undetected aimbots. Bone scanning, FOV, smoothing math, input methods, evasion.</p>
+          <ul class="pfeats">
+            <li>50+ page document</li>
+            <li>Full C++ source snippets</li>
+            <li>Smoothing and humanization</li>
+            <li>Detection vectors explained</li>
+          </ul>
+          <div class="pcard-bottom">
+            <div>
+              <span class="price">$49</span>
+              <span class="price-old">$69</span>
+              <div class="price-note">Crypto only</div>
+            </div>
+            <button class="btn btn-primary view-btn" data-page="method">View product</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="showcase rv" id="showcase">
+  <img class="showcase-img" src="https://kimi-web-img.kimi.ai/img/thumbs.dreamstime.com/9b6efd333f5ab4575815468701a82a7bcb1e50fd.jpg" alt="Neon microchip on black background">
+  <div class="showcase-overlay">
+    <div class="showcase-inner">
+      <h3>Built at ring 0.<br><em>Tuned for war.</em></h3>
+      <p>Every product runs on our private kernel driver — signed, mapped, and rebuilt within hours of every anti-cheat patch.</p>
+    </div>
+  </div>
+</div>
+
+<div class="strip" id="features">
+  <div class="container">
+    <div class="strip-grid">
+      <div class="strip-item rv">
+        <span class="strip-num">01</span>
+        <h4>Fully undetected</h4>
+        <p>Kernel-level bypasses. No bans since launch. Updated within hours of every patch.</p>
+      </div>
+      <div class="strip-item rv rv-d1">
+        <span class="strip-num">02</span>
+        <h4>Instant delivery</h4>
+        <p>Pay with crypto, get your key and download link immediately. No waiting.</p>
+      </div>
+      <div class="strip-item rv rv-d2">
+        <span class="strip-num">03</span>
+        <h4>Source available</h4>
+        <p>Driver ships compiled or with full source. Every product includes lifetime updates.</p>
+      </div>
+      <div class="strip-item rv rv-d3">
+        <span class="strip-num">04</span>
+        <h4>24/7 support</h4>
+        <p>Active Discord. Setup help, troubleshooting, configs, around the clock.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="faq">
+  <div class="container">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Support</div>
+      <h2 class="sec-title">Questions.</h2>
+    </div>
+    <div class="faq-wrap rv">
+      <div class="faq-item">
+        <button class="faq-q">Is this safe to use on my main account?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>All products are fully undetected as of the latest patch. We recommend a secondary account regardless. Our driver has maintained a zero-ban record since release.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">How does delivery work?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Fully automated. After your crypto payment confirms on-chain, you receive your license key and download link instantly. No manual approval.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Why crypto only?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Crypto keeps things private, fast, and borderless. We accept BTC, ETH, LTC, and USDT. Payments confirm in minutes.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Do I get updates?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Yes. Every purchase includes lifetime updates. New builds ship within hours of every Fortnite patch. Re-download from your panel anytime.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Refund policy?<span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>All sales are final due to the digital nature. If you hit a technical issue, support will resolve it or replace your product.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /homeView -->
+
+<!-- DRIVER PAGE -->
+<div class="ppage" id="page-driver">
+  <div class="container">
+    <button class="back-btn">&#8592; All products</button>
+    <div class="ppage-hero">
+      <div>
+        <div class="ppage-bannerwrap"><img class="ppage-banner" src="https://kimi-web-img.kimi.ai/img/as1.ftcdn.net/6681effaa7e012020a96284cc932df034933dcd1.jpg" alt="CPU on dark circuit board"></div>
+        <span class="ppage-badge">Ring 0 / Kernel</span>
+        <h1>Kernel Driver</h1>
+        <p class="ppage-sub">Custom signed kernel driver with manual mapping, hypervisor bypass, and full anti-cheat evasion. The foundation every serious cheat is built on. Works with EAC and BattlEye protected titles.</p>
+        <div class="ppage-meta">
+          <div class="ppm-item"><span class="ppm-val"><em>Zero</em></span><span class="ppm-lbl">Detections</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Ring 0</em></span><span class="ppm-lbl">Access level</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Lifetime</em></span><span class="ppm-lbl">Updates</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>4,200+</em></span><span class="ppm-lbl">Users</span></div>
+        </div>
+      </div>
+      <div class="co-side">
+        <div class="co-price-row">
+          <span class="co-price" id="coDrvPrice">$149</span>
+          <span class="co-old" id="coDrvOld">$199</span>
+        </div>
+        <div class="co-note">One-time / Lifetime updates</div>
+        <div class="ver-toggle" id="verToggleDrv">
+          <button class="active" data-v="compiled">Compiled</button>
+          <button data-v="src">Source</button>
+        </div>
+        <div class="co-label">Select crypto</div>
+        <div class="co-opts" id="coOptsDrv"></div>
+        <button class="co-btn pay-btn" data-product="driver">Checkout</button>
+        <div class="co-meta">
+          <span>Instant delivery after confirmation</span>
+          <span>Lifetime updates included</span>
+          <span>24/7 Discord support</span>
+        </div>
+      </div>
+    </div>
+    <div class="pp-feats">
+      <div class="pp-feat rv"><div class="pp-feat-icon">S</div><h4>Signed and mapped</h4><p>No test mode or DSE bypass needed. Loads clean on stock Windows 10 and 11.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">B</div><h4>Multi-AC bypass</h4><p>EAC, BattlEye, and Vanguard evasion. Updated within hours of every anti-cheat patch.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">R</div><h4>Full RW access</h4><p>Read and write process memory from ring 0. Safe, fast, completely undetected.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">H</div><h4>HWID spoofing</h4><p>Disk, MAC, TPM, and SMBIOS spoofing included. Clean slate on every boot.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">U</div><h4>Lifetime updates</h4><p>Every patch, every update, free forever. Re-download from your panel anytime.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">C</div><h4>Compiled or Source</h4><p>Binary plus loader, or full Visual Studio project with build scripts and docs.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHEAT PAGE -->
+<div class="ppage" id="page-cheat">
+  <div class="container">
+    <button class="back-btn">&#8592; All products</button>
+    <div class="ppage-hero">
+      <div>
+        <div class="ppage-bannerwrap"><img class="ppage-banner" src="https://kimi-web-img.kimi.ai/img/thumbs.dreamstime.com/ac577a6fd97b3790c297c69a1028a472833bcce0.jpg" alt="RGB gaming battlestation"></div>
+        <span class="ppage-badge">External / Full Suite</span>
+        <h1>Fortnite Full UD Cheat</h1>
+        <p class="ppage-sub">Complete external cheat built on our private driver. Aimbot, ESP, radar, stream-proof overlay. Zero detections since release. Auto-updates after every patch.</p>
+        <div class="ppage-meta">
+          <div class="ppm-item"><span class="ppm-val"><em>Zero</em></span><span class="ppm-lbl">Detections</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>2</em></span><span class="ppm-lbl">Aimbot modes</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Auto</em></span><span class="ppm-lbl">Updates</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>OBS</em></span><span class="ppm-lbl">Stream proof</span></div>
+        </div>
+      </div>
+      <div class="co-side">
+        <div class="co-price-row">
+          <span class="co-price">$99</span>
+          <span class="co-old">$129</span>
+        </div>
+        <div class="co-note">One-time / Lifetime updates</div>
+        <div class="co-label">Select crypto</div>
+        <div class="co-opts" id="coOptsCheat"></div>
+        <button class="co-btn pay-btn" data-product="cheat">Checkout</button>
+        <div class="co-meta">
+          <span>Instant delivery after confirmation</span>
+          <span>Lifetime updates included</span>
+          <span>24/7 Discord support</span>
+        </div>
+      </div>
+    </div>
+    <div class="pp-feats">
+      <div class="pp-feat rv"><div class="pp-feat-icon">A</div><h4>Dual aimbot modes</h4><p>Silent for rage, legit with smoothing for closet. FOV, bone selection, target priority.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">E</div><h4>Full ESP</h4><p>Players, loot, chests, vehicles, storm circle. Distance fading, chams, skeletons.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">R</div><h4>Radar and overlay</h4><p>Stream-proof OBS bypass. Your viewers see nothing but clean gameplay.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">C</div><h4>Config system</h4><p>Save, load, and share configs. Active community config library included.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">U</div><h4>Auto-update</h4><p>New build pushed within hours of every Fortnite patch. No manual downloads.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">D</div><h4>Driver included</h4><p>Built on our private kernel driver. No separate purchase needed.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE PAGE -->
+<div class="ppage" id="page-template">
+  <div class="container">
+    <button class="back-btn">&#8592; All products</button>
+    <div class="ppage-hero">
+      <div>
+        <div class="ppage-bannerwrap"><img class="ppage-banner" src="https://kimi-web-img.kimi.ai/img/www.shutterstock.com/d50d386a8c54312c0a95cec2ef481f7c3b14c317.jpg" alt="Code on dark screen"></div>
+        <span class="ppage-badge">C++20 / Source</span>
+        <h1>External Cheat Template</h1>
+        <p class="ppage-sub">Full C++20 external cheat base with overlay, memory class, entity loop, and rendering. Documented, commented, ready to extend. Build your own private cheat on a solid foundation.</p>
+        <div class="ppage-meta">
+          <div class="ppm-item"><span class="ppm-val"><em>C++20</em></span><span class="ppm-lbl">Standard</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>DX11</em></span><span class="ppm-lbl">Renderer</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Full</em></span><span class="ppm-lbl">Source</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Docs</em></span><span class="ppm-lbl">Included</span></div>
+        </div>
+      </div>
+      <div class="co-side">
+        <div class="co-price-row">
+          <span class="co-price">$79</span>
+          <span class="co-old">$99</span>
+        </div>
+        <div class="co-note">Source / Lifetime access</div>
+        <div class="co-label">Select crypto</div>
+        <div class="co-opts" id="coOptsTemplate"></div>
+        <button class="co-btn pay-btn" data-product="template">Checkout</button>
+        <div class="co-meta">
+          <span>Instant delivery after confirmation</span>
+          <span>Full source included</span>
+          <span>24/7 Discord support</span>
+        </div>
+      </div>
+    </div>
+    <div class="pp-feats">
+      <div class="pp-feat rv"><div class="pp-feat-icon">C</div><h4>Clean C++20 base</h4><p>Modern architecture with clear separation. Every section commented for readability.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">I</div><h4>ImGui and DX11</h4><p>Full rendering setup with menu system, ESP drawing helpers, frame timing.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">M</div><h4>Memory abstraction</h4><p>Read/write layer with driver communication. Swap in your own driver easily.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">E</div><h4>Entity and bones</h4><p>Caching system, bone parsing, matrix transforms. Ready for aimbot logic.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">D</div><h4>Documentation</h4><p>Setup guide, architecture overview, and extension examples included.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">V</div><h4>VS 2022 project</h4><p>Ready to build. No missing dependencies or cryptic setup steps.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- METHOD PAGE -->
+<div class="ppage" id="page-method">
+  <div class="container">
+    <button class="back-btn">&#8592; All products</button>
+    <div class="ppage-hero">
+      <div>
+        <div class="ppage-bannerwrap"><img class="ppage-banner" src="https://kimi-web-img.kimi.ai/img/www.shutterstock.com/3f04300f69a182b3292c1e3e59a622d10cc9b2c3.jpg" alt="Dark motherboard close-up"></div>
+        <span class="ppage-badge">Technical Writeup</span>
+        <h1>Aimbot Method</h1>
+        <p class="ppage-sub">Complete writeup on building undetected aimbots for Fortnite. Bone scanning, FOV checks, smoothing math, input methods, and evasion techniques. 50+ pages with full C++ source.</p>
+        <div class="ppage-meta">
+          <div class="ppm-item"><span class="ppm-val"><em>50+</em></span><span class="ppm-lbl">Pages</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>C++</em></span><span class="ppm-lbl">Source included</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>Full</em></span><span class="ppm-lbl">Coverage</span></div>
+          <div class="ppm-item"><span class="ppm-val"><em>PDF</em></span><span class="ppm-lbl">Format</span></div>
+        </div>
+      </div>
+      <div class="co-side">
+        <div class="co-price-row">
+          <span class="co-price">$49</span>
+          <span class="co-old">$69</span>
+        </div>
+        <div class="co-note">Digital / Lifetime access</div>
+        <div class="co-label">Select crypto</div>
+        <div class="co-opts" id="coOptsMethod"></div>
+        <button class="co-btn pay-btn" data-product="method">Checkout</button>
+        <div class="co-meta">
+          <span>Instant delivery after confirmation</span>
+          <span>Full source snippets included</span>
+          <span>24/7 Discord support</span>
+        </div>
+      </div>
+    </div>
+    <div class="pp-feats">
+      <div class="pp-feat rv"><div class="pp-feat-icon">D</div><h4>50+ page document</h4><p>Every concept explained from first principles. No hand-waving, no skipped steps.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">C</div><h4>C++ source snippets</h4><p>Full working code for each technique. Copy, adapt, and learn from real implementations.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">M</div><h4>Smoothing math</h4><p>Humanization algorithms, bezier curves, reaction delay simulation. Passes manual review.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">I</div><h4>Input methods</h4><p>SendInput vs driver input compared. Detection risks and when to use each.</p></div>
+      <div class="pp-feat rv"><div class="pp-feat-icon">V</div><h4>Detection vectors</h4><p>How anti-cheat catches aimbots and how to avoid every known vector.</p></div>
+      <div class="pp-feat rv rv-d1"><div class="pp-feat-icon">B</div><h4>Bone scanning</h4><p>Head, chest, pelvis selection. Dynamic bone switching based on visibility.</p></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo" id="footLogo"><span class="logo-mark">N</span>NIGHTHAWK</div>
+        <p>Premium Fortnite cheats and kernel tools. Built by developers, tested daily, trusted by thousands.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h5>Shop</h5>
+          <a class="foot-page" data-page="driver">Kernel driver</a>
+          <a class="foot-page" data-page="cheat">Full cheat</a>
+          <a class="foot-page" data-page="template">Template</a>
+          <a class="foot-page" data-page="method">Aimbot method</a>
+        </div>
+        <div class="foot-col">
+          <h5>Support</h5>
+          <a>Discord</a>
+          <a id="footFaq">FAQ</a>
+          <a>Status</a>
+        </div>
+        <div class="foot-col">
+          <h5>Legal</h5>
+          <a>Terms</a>
+          <a>Refunds</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>2026 NIGHTHAWK</span>
+      <span>Educational purposes only</span>
+    </div>
+  </div>
+</footer>
+
+<!-- PAY MODAL (MOCK) -->
+<div class="overlay" id="payModal">
+  <div class="modal">
+    <button class="modal-close" id="payClose">&#10005;</button>
+    <div class="pay-body">
+      <div class="pay-badge">Demo checkout</div>
+      <div class="pay-amount" id="pAmt">0 BTC</div>
+      <div class="pay-name" id="pName">Bitcoin (BTC network)</div>
+      <div class="qr-box"><svg id="qrSvg" viewBox="0 0 29 29" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="pay-addr">
+        <span id="pAddr">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+        <button class="copy-btn" id="copyBtn">Copy</button>
+      </div>
+      <div class="pay-timer" id="pTimer">Expires in 15:00</div>
+      <div class="pay-status">Demo mode. No real payment is processed and no funds can be sent.</div>
+      <div class="mock-note">Mock checkout — payment processor not connected</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================
+// DATA
+// =====================
+const P = {
+  driver: { pc:149, ps:249, hasToggle:true },
+  cheat: { price:99 },
+  template: { price:79 },
+  method: { price:49 }
+};
+
+const rates = { BTC:0.000015, ETH:0.00028, LTC:0.12, USDT:1 };
+const cNames = { BTC:"Bitcoin (BTC network)", ETH:"Ethereum (ERC-20)", LTC:"Litecoin (LTC network)", USDT:"Tether (TRC-20)" };
+const cAddrs = {
+  BTC:"bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+  ETH:"0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+  LTC:"ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+  USDT:"TEXAMPLE9xYzAbCdEfGhIjKlMnOpQrStUvWx"
+};
+
+const optIds = { driver:'coOptsDrv', cheat:'coOptsCheat', template:'coOptsTemplate', method:'coOptsMethod' };
+
+let curPage = null;
+let drvVer = 'compiled';
+let selCrypto = {};
+let payTimer = null;
+
+// =====================
+// MOCK QR GENERATOR (deterministic pattern from string)
+// =====================
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function makeQR(seed){
+  const N=29;
+  let h=hashStr(seed);
+  const rand=()=>{h^=h<<13;h^=h>>>17;h^=h<<5;h>>>=0;return h/4294967296};
+  let rects='';
+  const finder=(x,y)=>{
+    rects+=`<rect x="${x}" y="${y}" width="7" height="7" fill="#000"/>`;
+    rects+=`<rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/>`;
+    rects+=`<rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#000"/>`;
+  };
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const inF=(x<8&&y<8)||(x>=N-8&&y<8)||(x<8&&y>=N-8);
+    if(!inF&&rand()>.52) rects+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#000"/>`;
+  }
+  finder(0,0);finder(N-7,0);finder(0,N-7);
+  document.getElementById('qrSvg').innerHTML=rects;
+}
+
+// =====================
+// CRYPTO SELECTOR BUILDER
+// =====================
+function buildCrypto(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const coins = [
+    { c:'BTC', n:'Bitcoin', net:'BTC network', cls:'ci-btc' },
+    { c:'ETH', n:'Ethereum', net:'ERC-20', cls:'ci-eth' },
+    { c:'LTC', n:'Litecoin', net:'LTC network', cls:'ci-ltc' },
+    { c:'USDT', n:'Tether', net:'TRC-20', cls:'ci-usdt' }
+  ];
+  el.innerHTML = coins.map((coin,i) =>
+    `<div class="co-opt${i===0?' selected':''}" data-c="${coin.c}">
+      <div class="ci ${coin.cls}">${coin.c[0]}</div>
+      <div><div class="cn">${coin.n}</div><div class="cnet">${coin.net}</div></div>
+      <div class="ccheck"></div>
+    </div>`
+  ).join('');
+  selCrypto[id] = 'BTC';
+
+  el.querySelectorAll('.co-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      el.querySelectorAll('.co-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selCrypto[id] = opt.dataset.c;
+    });
+  });
+}
+
+// =====================
+// ROUTING
+// =====================
+function openPage(k) {
+  document.getElementById('homeView').style.display = 'none';
+  document.querySelectorAll('.ppage').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + k);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0, 0);
+    curPage = k;
+    history.replaceState(null, '', '#' + k);
+    requestAnimationFrame(() => observeReveals(target));
+  }
+}
+
+function showHome() {
+  document.querySelectorAll('.ppage').forEach(p => p.classList.remove('active'));
+  document.getElementById('homeView').style.display = 'block';
+  window.scrollTo(0, 0);
+  curPage = null;
+  history.replaceState(null, '', '#');
+  observeReveals(document.getElementById('homeView'));
+}
+
+// =====================
+// SCROLL REVEAL
+// =====================
+let revealObs = null;
+function observeReveals(scope){
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.rv').forEach(el => el.classList.add('in'));
+    return;
+  }
+  if (!revealObs) {
+    revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); } });
+    }, { threshold: .12 });
+  }
+  (scope || document).querySelectorAll('.rv:not(.in)').forEach(el => revealObs.observe(el));
+}
+
+// =====================
+// INIT
+// =====================
+document.addEventListener('DOMContentLoaded', () => {
+
+  Object.values(optIds).forEach(buildCrypto);
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => openPage(btn.dataset.page));
+  });
+
+  document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.addEventListener('click', showHome);
+  });
+
+  document.querySelectorAll('.foot-page').forEach(a => {
+    a.addEventListener('click', () => openPage(a.dataset.page));
+  });
+
+  document.getElementById('logoBtn').addEventListener('click', showHome);
+  document.getElementById('footLogo').addEventListener('click', showHome);
+
+  document.getElementById('navProducts').addEventListener('click', () => {
+    showHome();
+    setTimeout(() => document.getElementById('products').scrollIntoView({behavior:'smooth'}), 50);
+  });
+  document.getElementById('navFeatures').addEventListener('click', () => {
+    showHome();
+    setTimeout(() => document.getElementById('features').scrollIntoView({behavior:'smooth'}), 50);
+  });
+  document.getElementById('navFaq').addEventListener('click', () => {
+    showHome();
+    setTimeout(() => document.getElementById('faq').scrollIntoView({behavior:'smooth'}), 50);
+  });
+  document.getElementById('footFaq').addEventListener('click', () => {
+    showHome();
+    setTimeout(() => document.getElementById('faq').scrollIntoView({behavior:'smooth'}), 50);
+  });
+
+  document.querySelectorAll('#drvToggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      drvVer = btn.dataset.v;
+      document.querySelectorAll('#drvToggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('drvCardPrice').textContent = drvVer === 'src' ? '$249' : '$149';
+    });
+  });
+
+  document.querySelectorAll('#verToggleDrv button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      drvVer = btn.dataset.v;
+      document.querySelectorAll('#verToggleDrv button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('coDrvPrice').textContent = drvVer === 'src' ? '$249' : '$149';
+      document.getElementById('coDrvOld').textContent = drvVer === 'src' ? '$299' : '$199';
+    });
+  });
+
+  document.querySelectorAll('.pay-btn').forEach(btn => {
+    btn.addEventListener('click', () => startPay(btn.dataset.product));
+  });
+
+  document.getElementById('payClose').addEventListener('click', closePay);
+  document.getElementById('payModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closePay();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const txt = document.getElementById('pAddr').textContent;
+    const done = () => {
+      const b = document.getElementById('copyBtn');
+      b.textContent = 'Copied';
+      setTimeout(() => b.textContent = 'Copy', 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(done);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(ta); done();
+    }
+  });
+
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const open = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!open) item.classList.add('open');
+    });
+  });
+
+  document.querySelectorAll('.pcard').forEach(c => {
+    c.addEventListener('mousemove', e => {
+      const r = c.getBoundingClientRect();
+      c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  const t = document.getElementById('ticker');
+  if (t) t.innerHTML += t.innerHTML;
+
+  const hash = window.location.hash.replace('#','');
+  if (hash && P[hash]) openPage(hash);
+
+  observeReveals(document);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePay();
+  });
+});
+
+// =====================
+// CHECKOUT (MOCK — no payment processor)
+// =====================
+function getPrice(k) {
+  const p = P[k];
+  if (p.hasToggle) return drvVer === 'src' ? p.ps : p.pc;
+  return p.price;
+}
+
+function startPay(k) {
+  const usd = getPrice(k);
+  const optId = optIds[k];
+  const c = selCrypto[optId] || 'BTC';
+  const amt = (usd * rates[c]).toFixed(c === 'USDT' ? 2 : 6);
+  document.getElementById('pAmt').textContent = amt + ' ' + c;
+  document.getElementById('pName').textContent = cNames[c];
+  document.getElementById('pAddr').textContent = cAddrs[c];
+  makeQR(cAddrs[c]);
+  document.getElementById('payModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  let s = 15 * 60;
+  document.getElementById('pTimer').textContent = 'Expires in 15:00';
+  clearInterval(payTimer);
+  payTimer = setInterval(() => {
+    s--;
+    document.getElementById('pTimer').textContent = 'Expires in ' + Math.floor(s/60) + ':' + (s%60).toString().padStart(2,'0');
+    if (s <= 0) clearInterval(payTimer);
+  }, 1000);
+}
+
+function closePay() {
+  document.getElementById('payModal').classList.remove('open');
+  document.body.style.overflow = '';
+  clearInterval(payTimer);
+}
+</script>
+
+</body>
+</html>
