@@ -1,0 +1,3431 @@
+# AUGUST AI CODE CLI
+# MASTER AUTONOMOUS MULTI-AGENT ENGINEERING SYSTEM
+# FULL IMPLEMENTATION SPECIFICATION
+#
+# PRIMARY IMPLEMENTATION AGENT: CODEX
+# PLANNING AGENT: KIMI
+# RESEARCH AGENT: GEMINI
+#
+# IMPORTANT:
+# This is an implementation specification for an existing August AI Code CLI.
+# Do NOT create a separate "Mission Control" application.
+# The multi-agent orchestration system must become a native subsystem of
+# August AI Code CLI itself.
+#
+# Read this entire specification before modifying anything.
+# Inspect the existing repository before making architectural decisions.
+# Do not assume the existing architecture.
+# Do not blindly replace existing systems.
+# Preserve working functionality unless the requested architecture explicitly
+# requires changing it.
+#
+# ============================================================
+# 0. PRIMARY OBJECTIVE
+# ============================================================
+#
+# Transform the existing August AI Code CLI into a highly autonomous,
+# multi-agent software-engineering environment.
+#
+# August must be able to receive a user goal through:
+#
+#     /goal <objective>
+#
+# and autonomously work toward satisfying that goal using:
+#
+#     Kimi
+#     Codex
+#     Gemini
+#
+# plus a large internal specialist-agent system.
+#
+# The system must behave as ONE coordinated engineering system.
+#
+# Kimi is primarily responsible for strategic planning, decomposition,
+# architectural reasoning, and implementation strategy.
+#
+# Codex is primarily responsible for implementation, code modification,
+# debugging, and technical execution.
+#
+# Gemini is primarily responsible for research, documentation lookup,
+# external technical verification, and independent research.
+#
+# August itself is the orchestrator.
+#
+# Do NOT treat Kimi, Codex, and Gemini as three unrelated chat windows.
+#
+# The user interacts with August.
+#
+# August decides which agents should be used, what context they receive,
+# what tools they can use, when work should continue, when work should be
+# reviewed, and whether the original goal has actually been completed.
+#
+# ============================================================
+# 1. ABSOLUTE ARCHITECTURAL RULE
+# ============================================================
+#
+# There is NO separate Mission Control application.
+#
+# Do NOT create:
+#
+#     mission-control/
+#     mission-control-desktop/
+#     separate dashboard application
+#     separate orchestration GUI
+#
+# unless the existing August architecture already contains equivalent
+# functionality and it is necessary to preserve it.
+#
+# The orchestration system belongs INSIDE August AI Code CLI.
+#
+# August CLI itself is the control plane.
+#
+# Conceptually:
+#
+#     USER
+#       |
+#       v
+#     AUGUST CLI
+#       |
+#       +---- GOAL ENGINE
+#       |
+#       +---- ORCHESTRATOR
+#       |
+#       +---- CONTEXT MANAGER
+#       |
+#       +---- MEMORY MANAGER
+#       |
+#       +---- RAG
+#       |
+#       +---- AGENT ROUTER
+#       |
+#       +---- KIMI
+#       +---- CODEX
+#       +---- GEMINI
+#       |
+#       +---- SPECIALIST AGENTS
+#       |
+#       +---- TOOL SYSTEM
+#       |
+#       +---- BUILD / TEST / DEBUG
+#       |
+#       +---- REVIEW / VERIFICATION
+#       |
+#       +---- GIT CHECKPOINTS
+#       |
+#       +---- FINAL GOAL VALIDATION
+#
+# ============================================================
+# 2. FIRST ACTION: INSPECT THE EXISTING AUGUST CLI
+# ============================================================
+#
+# Before writing implementation code:
+#
+# 1. Inspect the complete repository structure.
+# 2. Identify the CLI entry point.
+# 3. Identify command parsing.
+# 4. Identify configuration handling.
+# 5. Identify model/provider abstractions.
+# 6. Identify existing tool execution.
+# 7. Identify existing shell execution.
+# 8. Identify existing filesystem tools.
+# 9. Identify existing Git integration.
+# 10. Identify existing streaming implementation.
+# 11. Identify existing conversation/session state.
+# 12. Identify existing memory system.
+# 13. Identify existing RAG system.
+# 14. Identify existing logging.
+# 15. Identify existing tests.
+# 16. Identify existing build system.
+# 17. Identify existing error handling.
+# 18. Identify existing permission/safety controls.
+# 19. Identify existing agent abstractions.
+# 20. Identify existing MCP/tool integrations if present.
+#
+# Produce an internal architecture map before implementation.
+#
+# Do NOT rewrite the project merely because another architecture looks
+# cleaner.
+#
+# Extend existing abstractions where practical.
+#
+# If an existing abstraction is fundamentally incompatible with the required
+# architecture, document the conflict and refactor it incrementally.
+#
+# ============================================================
+# 3. SOURCE CODE RESEARCH SYSTEM
+# ============================================================
+#
+# August must be able to study:
+#
+#     A. August AI source code
+#     B. August AI Code CLI source code
+#     C. Codex CLI source code
+#     D. Claude CLI source code
+#
+# These are RESEARCH SOURCES.
+#
+# They must not automatically become runtime dependencies.
+#
+# Their purpose is to let August analyze proven CLI/agent architectures
+# and improve itself.
+#
+# The source repositories must be configurable.
+#
+# Example:
+#
+#     august:
+#         path: ...
+#
+#     august_cli:
+#         path: ...
+#
+#     codex_cli:
+#         path: ...
+#
+#     claude_cli:
+#         path: ...
+#
+# Never hardcode the user's actual filesystem paths.
+#
+# ============================================================
+# 4. CLI SOURCE RESEARCH AGENT
+# ============================================================
+#
+# Create a dedicated CLI_ARCHITECTURE_RESEARCHER.
+#
+# Responsibilities:
+#
+# - inspect August CLI architecture
+# - inspect Codex CLI architecture
+# - inspect Claude CLI architecture
+# - identify useful implementation patterns
+# - identify agent-loop patterns
+# - identify context-management patterns
+# - identify tool invocation patterns
+# - identify streaming patterns
+# - identify cancellation patterns
+# - identify permission systems
+# - identify session persistence
+# - identify command parsing
+# - identify subprocess management
+# - identify error handling
+# - identify retry systems
+# - identify task completion mechanisms
+# - identify prompt construction
+# - identify state machines
+# - identify logging architecture
+# - identify extensibility mechanisms
+# - identify provider abstraction patterns
+#
+# It must NOT blindly copy source code.
+#
+# It should produce:
+#
+#     observation
+#     source
+#     file
+#     symbol
+#     architectural_pattern
+#     applicability_to_august
+#     compatibility
+#     risks
+#     recommendation
+#     confidence
+#
+# Example:
+#
+#     Source:
+#         Codex CLI
+#
+#     Observation:
+#         Tool execution is represented through a structured invocation layer.
+#
+#     August applicability:
+#         HIGH
+#
+#     Recommendation:
+#         Adapt the architectural concept using August's own abstractions.
+#
+# ============================================================
+# 5. SOURCE PROVENANCE
+# ============================================================
+#
+# Every source-derived architectural claim must preserve provenance.
+#
+# Never allow:
+#
+#     "Codex does X"
+#
+# without knowing where that conclusion came from.
+#
+# Store:
+#
+#     repository
+#     commit/version
+#     file
+#     symbol/section
+#     timestamp
+#     observation
+#     interpretation
+#     confidence
+#
+# Clearly distinguish:
+#
+#     FACT
+#     INFERENCE
+#     PROPOSAL
+#
+# ============================================================
+# 6. PROVIDER ARCHITECTURE
+# ============================================================
+#
+# Implement a provider abstraction.
+#
+# Conceptually:
+#
+#     ModelProvider
+#         |
+#         +-- KimiProvider
+#         +-- CodexProvider
+#         +-- GeminiProvider
+#
+# The exact APIs/endpoints/authentication mechanisms must be determined from
+# the existing project and current official documentation.
+#
+# Do NOT invent API endpoints.
+#
+# Provider interface should support, where the provider allows:
+#
+#     send()
+#     stream()
+#     cancel()
+#     tool_calls()
+#     usage()
+#     errors()
+#     model_metadata()
+#
+# Provider failures must be represented structurally.
+#
+# Do not allow one provider failure to crash the entire orchestration system.
+#
+# ============================================================
+# 7. KIMI ROLE
+# ============================================================
+#
+# KIMI is the primary strategic planning agent.
+#
+# Kimi should:
+#
+# - understand the goal
+# - inspect current state
+# - analyze architecture
+# - decompose tasks
+# - identify dependencies
+# - identify risks
+# - propose implementation strategy
+# - identify files likely to change
+# - determine which specialists are needed
+# - identify testing requirements
+# - define acceptance criteria
+# - challenge weak implementation approaches
+# - identify contradictions
+# - revise plans when implementation reality differs
+#
+# Kimi must NOT directly modify production files unless explicitly configured
+# as an implementation-capable agent.
+#
+# Default:
+#
+#     Kimi = planning/reasoning only
+#
+# ============================================================
+# 8. CODEX ROLE
+# ============================================================
+#
+# Codex is the primary implementation agent.
+#
+# Codex should:
+#
+# - inspect source
+# - implement changes
+# - modify files
+# - create files
+# - remove obsolete code
+# - build
+# - run applicable tests
+# - inspect diffs
+# - debug failures
+# - fix issues
+# - document implementation
+#
+# Codex must:
+#
+# - minimize unrelated changes
+# - follow existing repository conventions
+# - preserve compatibility
+# - avoid speculative abstractions
+# - never claim a test passed unless it actually ran
+# - never claim completion without evidence
+#
+# If Kimi's plan conflicts with repository reality:
+#
+#     do NOT blindly follow the plan.
+#
+# Report:
+#
+#     PLAN_CONFLICT
+#
+# then provide the concrete repository evidence.
+#
+# ============================================================
+# 9. GEMINI ROLE
+# ============================================================
+#
+# Gemini is the primary external research agent.
+#
+# Gemini should research:
+#
+# - official documentation
+# - language documentation
+# - compiler behavior
+# - operating-system documentation
+# - APIs
+# - SDK documentation
+# - standards
+# - library documentation
+# - version-specific behavior
+# - technical implementation questions
+# - debugging references
+#
+# Prioritize:
+#
+#     official documentation
+#     standards
+#     maintainers
+#     vendor documentation
+#     primary sources
+#
+# Research results must include citations/provenance when possible.
+#
+# Gemini should not be used merely because it is available.
+#
+# Use it when external research materially improves correctness.
+#
+# ============================================================
+# 10. AGENT REGISTRY
+# ============================================================
+#
+# Implement a central registry containing all available specialist agents.
+#
+# Required agents:
+#
+# 1. ORCHESTRATOR
+# 2. KIMI_PLANNER
+# 3. CODEX_CODER
+# 4. GEMINI_RESEARCHER
+# 5. ARCHITECTURE_ANALYZER
+# 6. RAG_RESEARCHER
+# 7. CLI_ARCHITECTURE_RESEARCHER
+# 8. BINARY_ANALYZER
+# 9. SYMBOL_RESEARCHER
+# 10. OFFSET_RESEARCHER
+# 11. SECURITY_RESEARCHER
+# 12. ANTI_CHEAT_RESEARCHER
+# 13. KERNEL_DEBUGGER
+# 14. BSOD_TRIAGE
+# 15. DRIVER_REVIEWER
+# 16. DEBUGGER
+# 17. BUG_HUNTER
+# 18. TEST_ENGINEER
+# 19. BUILD_AGENT
+# 20. CODE_REVIEWER
+# 21. REGRESSION_AGENT
+# 22. VERIFIER
+# 23. ADVERSARIAL_VERIFIER
+# 24. SANDBOX_EXECUTOR
+# 25. MEMORY_MANAGER
+# 26. CONTEXT_MANAGER
+# 27. AUTONOMOUS_CODER
+# 28. SESSION_SUPERVISOR
+# 29. GIT_AGENT
+# 30. DOCUMENTATION_AGENT
+# 31. RP2040_ENGINEER
+# 32. EMBEDDED_TESTER
+# 33. TRAJECTORY_ENGINEER
+# 34. KNOWLEDGE_CURATOR
+# 35. REFACTOR_AGENT
+# 36. TASK_GENERATOR
+# 37. BENCHMARK_AGENT
+# 38. BENCHMARK_ANALYZER
+# 39. SESSION_MEMORY
+#
+# ============================================================
+# 11. ORCHESTRATOR
+# ============================================================
+#
+# The ORCHESTRATOR is the central controller.
+#
+# Responsibilities:
+#
+# - receive goals
+# - create GoalState
+# - invoke Kimi
+# - invoke research agents
+# - assign implementation work
+# - coordinate dependencies
+# - monitor progress
+# - handle failures
+# - invoke verification
+# - determine whether more work is required
+#
+# Lifecycle:
+#
+#     INTAKE
+#       ↓
+#     CONTEXT
+#       ↓
+#     PLAN
+#       ↓
+#     RESEARCH
+#       ↓
+#     ARCHITECTURE
+#       ↓
+#     IMPLEMENT
+#       ↓
+#     BUILD
+#       ↓
+#     TEST
+#       ↓
+#     DEBUG
+#       ↓
+#     REVIEW
+#       ↓
+#     SECURITY REVIEW
+#       ↓
+#     ADVERSARIAL VERIFICATION
+#       ↓
+#     FINAL VERIFICATION
+#       ↓
+#     GOAL CHECK
+#       ↓
+#     COMPLETE / CONTINUE
+#
+# ============================================================
+# 12. /GOAL
+# ============================================================
+#
+# Implement:
+#
+#     /goal <goal>
+#
+# Example:
+#
+#     /goal Improve August's agent execution reliability and add
+#     persistent autonomous task execution.
+#
+# /goal becomes the authoritative source of truth.
+#
+# The system must preserve:
+#
+#     original goal
+#     requirements
+#     constraints
+#     acceptance criteria
+#     current progress
+#     unresolved work
+#     evidence
+#     verification state
+#
+# The system must NOT silently redefine the goal.
+#
+# ============================================================
+# 13. GOAL OBJECT
+# ============================================================
+#
+# Implement a persistent GoalState conceptually equivalent to:
+#
+#     GoalState {
+#         id
+#         originalRequest
+#         requirements
+#         constraints
+#         acceptanceCriteria
+#         status
+#         currentPlan
+#         completedCriteria
+#         unresolvedCriteria
+#         activeAgents
+#         completedTasks
+#         pendingTasks
+#         blockedTasks
+#         evidence
+#         iterationCount
+#         verificationResults
+#         createdAt
+#         updatedAt
+#     }
+#
+# The exact type system must match the existing August language/framework.
+#
+# ============================================================
+# 14. ACCEPTANCE CRITERIA
+# ============================================================
+#
+# Every meaningful goal must have explicit acceptance criteria.
+#
+# If the user provides them:
+#
+#     preserve them.
+#
+# If they are absent:
+#
+#     Kimi should derive reasonable engineering acceptance criteria from the
+#     request, clearly marking them as derived criteria.
+#
+# The system must never silently declare success while required criteria
+# remain unresolved.
+#
+# ============================================================
+# 15. GOAL COMPLETION LOOP
+# ============================================================
+#
+# The most important rule:
+#
+# AN AGENT SAYING "DONE" DOES NOT MEAN THE GOAL IS DONE.
+#
+# Completion requires evidence.
+#
+# The orchestrator must repeatedly ask:
+#
+#     "Is the ORIGINAL /goal actually satisfied?"
+#
+# If NO:
+#
+#     identify missing requirement
+#     create follow-up task
+#     assign appropriate agent
+#     continue
+#
+# If YES:
+#
+#     invoke final verification
+#     finalize only after verification passes.
+#
+# ============================================================
+# 16. AGENT MESSAGE CONTRACT
+# ============================================================
+#
+# Agents must communicate through structured messages rather than arbitrary
+# natural-language blobs whenever possible.
+#
+# Conceptual:
+#
+#     AgentMessage {
+#         id
+#         agent
+#         taskId
+#         goalId
+#         type
+#         status
+#         summary
+#         findings
+#         files
+#         commands
+#         evidence
+#         risks
+#         unresolved
+#         confidence
+#         nextActions
+#         timestamp
+#     }
+#
+# Types:
+#
+#     PLAN
+#     RESEARCH
+#     IMPLEMENTATION
+#     BUILD
+#     TEST
+#     DEBUG
+#     REVIEW
+#     SECURITY
+#     VERIFICATION
+#     BLOCKED
+#     ERROR
+#     CHECKPOINT
+#
+# ============================================================
+# 17. CONTEXT MANAGER
+# ============================================================
+#
+# Context Manager creates the minimum sufficient context for each agent.
+#
+# Context should contain only relevant information:
+#
+#     goal
+#     requirements
+#     constraints
+#     relevant files
+#     relevant code
+#     architecture
+#     previous findings
+#     relevant RAG
+#     relevant research
+#     failures
+#     test results
+#     verification results
+#
+# Avoid dumping the entire repository into every agent prompt.
+#
+# Context must be:
+#
+#     relevant
+#     current
+#     version-aware
+#     provenance-aware
+#     contradiction-aware
+#
+# ============================================================
+# 18. MEMORY MANAGER
+# ============================================================
+#
+# Persistent memory should store:
+#
+#     architecture decisions
+#     requirements
+#     bugs
+#     fixes
+#     failed approaches
+#     dependencies
+#     build configurations
+#     benchmark results
+#     important implementation decisions
+#     known limitations
+#
+# Memory scopes:
+#
+#     GLOBAL
+#     PROJECT
+#     REPOSITORY
+#     GOAL
+#     SESSION
+#
+# Never store secrets.
+#
+# Memory must include timestamps and provenance.
+#
+# Stale information must be marked stale rather than silently treated as
+# current.
+#
+# ============================================================
+# 19. RAG SYSTEM
+# ============================================================
+#
+# RAG must support:
+#
+#     C++
+#     STL
+#     Win32
+#     Windows Internals
+#     WDK
+#     WDM
+#     KMDF
+#     UMDF
+#     COM
+#     PE/COFF
+#     PDB
+#     DbgHelp
+#     ETW
+#     WinDbg
+#     MSVC
+#     CMake
+#     PowerShell
+#     Python
+#     TypeScript
+#     JavaScript
+#     networking
+#     SQL
+#     embedded development
+#     RP2040
+#
+# RAG must preserve:
+#
+#     source
+#     version
+#     date
+#     topic
+#     language
+#     document type
+#     hash
+#     chunk ID
+#
+# ============================================================
+# 20. ARCHITECTURE ANALYZER
+# ============================================================
+#
+# Analyze:
+#
+#     modules
+#     dependencies
+#     APIs
+#     data flow
+#     control flow
+#     threading
+#     IPC
+#     configuration
+#     storage
+#     build system
+#     external dependencies
+#
+# Detect:
+#
+#     circular dependencies
+#     duplicate functionality
+#     god modules
+#     tight coupling
+#     leaky abstractions
+#     fragile interfaces
+#     global state
+#     dead code
+#
+# Do not modify files.
+#
+# ============================================================
+# 21. BINARY ANALYZER
+# ============================================================
+#
+# For authorized binaries/software:
+#
+# Analyze:
+#
+#     PE headers
+#     sections
+#     imports
+#     exports
+#     relocations
+#     resources
+#     debug directories
+#     RTTI
+#     strings
+#     function boundaries
+#     metadata
+#     build identifiers
+#     binary differences
+#
+# Preserve originals.
+#
+# Record:
+#
+#     hash
+#     architecture
+#     build information
+#     observations
+#     inferences
+#     confidence
+#
+# Do not fabricate conclusions.
+#
+# ============================================================
+# 22. SYMBOL RESEARCHER
+# ============================================================
+#
+# Verify:
+#
+#     PDB identity
+#     GUID
+#     age
+#     module identity
+#     build compatibility
+#     source mapping
+#     symbol identity
+#
+# Never fabricate symbols.
+#
+# ============================================================
+# 23. OFFSET RESEARCHER
+# ============================================================
+#
+# For authorized version-aware binary analysis:
+#
+# Prefer:
+#
+#     symbols
+#     PDB
+#     source
+#     metadata
+#     structural relationships
+#
+# over brittle hardcoded addresses.
+#
+# Track:
+#
+#     build
+#     evidence
+#     confidence
+#     provenance
+#
+# This system must not become an anti-cheat bypass or evasion system.
+#
+# ============================================================
+# 24. SECURITY RESEARCHER
+# ============================================================
+#
+# Review:
+#
+#     memory safety
+#     input validation
+#     authentication
+#     authorization
+#     privilege boundaries
+#     IPC
+#     sandboxing
+#     filesystem permissions
+#     secrets
+#     cryptography
+#     serialization
+#     network exposure
+#
+# Every finding should contain:
+#
+#     evidence
+#     impact
+#     severity
+#     remediation
+#     validation
+#
+# ============================================================
+# 25. ANTI-CHEAT RESEARCHER
+# ============================================================
+#
+# Defensive research only.
+#
+# Analyze authorized software/test applications for:
+#
+#     integrity verification
+#     process protection
+#     module validation
+#     drivers
+#     telemetry
+#     anti-tampering
+#     kernel/user boundaries
+#     detection surfaces
+#
+# Do not implement operational bypasses, evasion, concealment, or cheating
+# mechanisms.
+#
+# ============================================================
+# 26. KERNEL PROJECT DETECTION
+# ============================================================
+#
+# Detect kernel/driver projects automatically.
+#
+# Indicators include:
+#
+#     WDK
+#     KMDF
+#     WDM
+#     kernel driver projects
+#     .sys targets
+#     DriverEntry
+#     IRP handlers
+#     IOCTL handlers
+#     kernel-mode APIs
+#     ntoskrnl
+#     Wdf*
+#     Ke*
+#     Mm*
+#     Ps*
+#     Ob*
+#
+# When a task is determined to involve kernel code:
+#
+#     ENTER KERNEL SAFETY MODE
+#
+# ============================================================
+# 27. ABSOLUTE KERNEL TESTING RULE
+# ============================================================
+#
+# DO NOT RUNTIME TEST KERNEL CODE.
+#
+# Do not:
+#
+#     load the driver
+#     unload the driver
+#     execute the driver
+#     attach it to the kernel
+#     run kernel IOCTL tests
+#     perform live kernel experiments
+#     intentionally trigger kernel execution
+#
+# The reason is that there is no trusted kernel sandbox in the current
+# August environment and runtime execution could crash the machine.
+#
+# This rule overrides normal autonomous testing behavior.
+#
+# ============================================================
+# 28. WHAT TO DO INSTEAD FOR KERNEL PROJECTS
+# ============================================================
+#
+# Allowed:
+#
+#     source inspection
+#     static analysis
+#     compiler diagnostics
+#     WDK documentation verification
+#     symbol analysis
+#     code review
+#     dependency analysis
+#     lifetime analysis
+#     synchronization analysis
+#     IRQL analysis
+#     IOCTL validation review
+#     resource ownership analysis
+#     cleanup analysis
+#     static BSOD triage
+#
+# Build only when the build itself does not execute the driver.
+#
+# Clearly report:
+#
+#     BUILD VERIFIED
+#
+# separately from:
+#
+#     RUNTIME NOT PERFORMED
+#
+# Never imply runtime kernel validation occurred.
+#
+# ============================================================
+# 29. BSOD TRIAGE
+# ============================================================
+#
+# Kernel tasks MUST use BSOD_TRIAGE and DRIVER_REVIEWER.
+#
+# BSOD_TRIAGE should inspect:
+#
+#     BugCheck
+#     bugcheck arguments
+#     suspicious instructions
+#     IRQL
+#     memory lifetime
+#     invalid pointers
+#     use-after-free
+#     double-free
+#     race conditions
+#     synchronization
+#     pool usage
+#     reference counting
+#     IOCTL validation
+#     user/kernel boundary
+#     cleanup
+#     device lifetime
+#     interrupt handling
+#     DMA assumptions
+#     pageable/non-pageable correctness
+#     exception paths
+#
+# Important:
+#
+# A crash location is NOT automatically the root cause.
+#
+# Correlate evidence.
+#
+# ============================================================
+# 30. FIVE-PASS BSOD STATIC REVIEW LOOP
+# ============================================================
+#
+# For kernel projects, execute FIVE independent static BSOD safety passes.
+#
+# The system must NOT simply ask one agent five times to say "looks good."
+#
+# Each pass must independently inspect the CURRENT source state.
+#
+# Pass:
+#
+#     1
+#       ↓
+#     identify issues
+#       ↓
+#     fix identified issues
+#       ↓
+#     2
+#       ↓
+#     identify issues
+#       ↓
+#     fix
+#       ↓
+#     3
+#       ↓
+#     identify issues
+#       ↓
+#     fix
+#       ↓
+#     4
+#       ↓
+#     identify issues
+#       ↓
+#     fix
+#       ↓
+#     5
+#
+# Each pass must record:
+#
+#     pass number
+#     source revision
+#     findings
+#     evidence
+#     fixes
+#     remaining concerns
+#     reviewer
+#     result
+#
+# Continue until five consecutive completed passes report:
+#
+#     NO REMAINING IDENTIFIED BSOD-RELATED ISSUES
+#
+# Do NOT report:
+#
+#     "BSOD is impossible."
+#
+# Do NOT report:
+#
+#     "100% BSOD-proof."
+#
+# The correct claim is:
+#
+#     "Five independent static safety review passes completed with no
+#      remaining identified BSOD-related issues."
+#
+# If a pass finds an issue:
+#
+#     fix it
+#     invalidate the previous clean-pass streak
+#     begin counting clean passes again.
+#
+# Example:
+#
+#     PASS 1 CLEAN
+#     PASS 2 CLEAN
+#     PASS 3 ISSUE FOUND
+#     FIX
+#     PASS 1 CLEAN
+#     PASS 2 CLEAN
+#     PASS 3 CLEAN
+#     PASS 4 CLEAN
+#     PASS 5 CLEAN
+#
+# Only then may the static BSOD review requirement be satisfied.
+#
+# ============================================================
+# 31. DRIVER REVIEWER
+# ============================================================
+#
+# Review:
+#
+#     IRQL correctness
+#     memory lifetime
+#     pool allocations
+#     reference counts
+#     synchronization
+#     race conditions
+#     IOCTL validation
+#     user/kernel boundary
+#     cleanup
+#     error paths
+#     resource ownership
+#     DMA correctness
+#     pageable code restrictions
+#
+# Findings must reference actual source locations.
+#
+# ============================================================
+# 32. DEBUGGER
+# ============================================================
+#
+# Debugging lifecycle:
+#
+#     reproduce
+#     collect evidence
+#     reduce
+#     hypothesize
+#     test hypothesis
+#     implement fix
+#     reproduce original failure
+#     regression test
+#
+# Never claim a bug is fixed merely because code was changed.
+#
+# ============================================================
+# 33. BUG HUNTER
+# ============================================================
+#
+# Proactively search for:
+#
+#     static-analysis findings
+#     compiler warnings
+#     memory errors
+#     edge cases
+#     incorrect state transitions
+#     concurrency problems
+#     resource leaks
+#     error handling failures
+#     invalid assumptions
+#     untested branches
+#
+# Use applicable:
+#
+#     static analysis
+#     warnings
+#     sanitizers
+#     fuzzing
+#     assertions
+#     tests
+#
+# Kernel runtime testing remains forbidden.
+#
+# ============================================================
+# 34. TEST ENGINEER
+# ============================================================
+#
+# Create and execute applicable:
+#
+#     unit tests
+#     integration tests
+#     regression tests
+#     property tests
+#     fuzz tests
+#     API tests
+#     CLI tests
+#     end-to-end tests
+#
+# Test:
+#
+#     normal behavior
+#     invalid input
+#     edge cases
+#     failure paths
+#     cancellation
+#     retries
+#     persistence
+#     concurrency
+#
+# Never say PASS without actual evidence.
+#
+# ============================================================
+# 35. SANDBOX EXECUTOR
+# ============================================================
+#
+# For user-mode code:
+#
+# Provide controlled execution where available.
+#
+# Restrict:
+#
+#     filesystem
+#     network
+#     CPU
+#     RAM
+#     process creation
+#     runtime
+#
+# Apply:
+#
+#     timeouts
+#     resource limits
+#     cleanup
+#
+# Preserve:
+#
+#     logs
+#     stdout
+#     stderr
+#     artifacts
+#
+# NEVER use this system to execute kernel drivers.
+#
+# ============================================================
+# 36. BUILD AGENT
+# ============================================================
+#
+# Detect and support applicable build systems:
+#
+#     MSBuild
+#     Visual Studio
+#     MSVC
+#     Clang
+#     CMake
+#     Ninja
+#     Cargo
+#     npm
+#     Python
+#
+# Record:
+#
+#     toolchain
+#     version
+#     command
+#     exit code
+#     stdout
+#     stderr
+#     warnings
+#     errors
+#     artifact
+#
+# ============================================================
+# 37. CODE REVIEWER
+# ============================================================
+#
+# The reviewer must inspect the ACTUAL DIFF.
+#
+# Do not trust:
+#
+#     author's summary
+#     agent claims
+#     plan
+#
+# Review:
+#
+#     correctness
+#     architecture
+#     maintainability
+#     edge cases
+#     error handling
+#     security
+#     performance
+#     regressions
+#
+# ============================================================
+# 38. REGRESSION AGENT
+# ============================================================
+#
+# Compare:
+#
+#     previous state
+#     current state
+#
+# Where applicable:
+#
+#     behavior
+#     tests
+#     performance
+#     memory
+#     binary size
+#     crash behavior
+#
+# Kernel projects:
+#
+#     NO RUNTIME REGRESSION TESTING.
+#
+# ============================================================
+# 39. ADVERSARIAL VERIFIER
+# ============================================================
+#
+# Before completion, actively attempt to disprove the completion claim.
+#
+# Check:
+#
+#     missing requirements
+#     hidden assumptions
+#     edge cases
+#     error paths
+#     races
+#     resource exhaustion
+#     compatibility
+#     regressions
+#     security
+#     false-positive tests
+#     incomplete implementation
+#
+# It must not modify production code.
+#
+# Every finding needs:
+#
+#     evidence
+#
+# ============================================================
+# 40. FINAL VERIFIER
+# ============================================================
+#
+# VERIFIER is the final validation authority.
+#
+# It can return only:
+#
+#     PASS
+#     PARTIAL
+#     FAIL
+#
+# Verification must inspect:
+#
+#     original goal
+#     acceptance criteria
+#     implementation
+#     build
+#     tests
+#     runtime evidence
+#     security review
+#     regression
+#     documentation
+#     kernel restrictions where applicable
+#
+# A goal cannot be marked complete with unresolved mandatory criteria.
+#
+# ============================================================
+# 41. AUTONOMOUS CODER LOOP
+# ============================================================
+#
+# Implement:
+#
+#     PLAN
+#       ↓
+#     IMPLEMENT
+#       ↓
+#     BUILD
+#       ↓
+#     TEST
+#       ↓
+#     DEBUG
+#       ↓
+#     REVIEW
+#       ↓
+#     VERIFY
+#       ↓
+#     CHECKPOINT
+#       ↓
+#     NEXT TASK
+#
+# Stop conditions:
+#
+#     SUCCESS
+#     BLOCKED
+#     MAX_ITERATIONS
+#     HUMAN_REQUIRED
+#     ENVIRONMENT_FAILURE
+#     SAFETY_BOUNDARY
+#
+# SUCCESS requires VERIFIER.
+#
+# ============================================================
+# 42. SESSION SUPERVISOR
+# ============================================================
+#
+# Monitor for:
+#
+#     loops
+#     repeated failures
+#     no progress
+#     contradictions
+#     unexpected files
+#     excessive token usage
+#     excessive runtime
+#     resource exhaustion
+#     tool failures
+#     unsafe actions
+#
+# Actions:
+#
+#     CONTINUE
+#     PAUSE
+#     REPLAN
+#     RETRY
+#     ROLLBACK
+#     ESCALATE
+#     STOP
+#
+# ============================================================
+# 43. TASK DEPENDENCY GRAPH
+# ============================================================
+#
+# Represent tasks as a dependency graph.
+#
+# Example:
+#
+#     architecture
+#          |
+#          +---- research
+#          |
+#          v
+#       implementation
+#          |
+#          v
+#        build
+#          |
+#          v
+#        tests
+#          |
+#          v
+#       debugging
+#          |
+#          v
+#        review
+#          |
+#          v
+#       verification
+#
+# Independent research tasks may execute concurrently.
+#
+# Dependent tasks must wait for their prerequisites.
+#
+# ============================================================
+# 44. CONCURRENCY
+# ============================================================
+#
+# Support multiple agents working in parallel when safe.
+#
+# Example:
+#
+#     Kimi
+#       |
+#       +---- Gemini research
+#       +---- RAG research
+#       +---- Architecture analysis
+#
+# while these execute:
+#
+#     Context Manager
+#     Memory Manager
+#
+# remain active.
+#
+# Implementation should normally wait for the planning/dependency
+# information it requires.
+#
+# Prevent two agents from simultaneously making conflicting modifications
+# to the same files unless an explicit merge strategy exists.
+#
+# ============================================================
+# 45. FILE OWNERSHIP
+# ============================================================
+#
+# Track which agent is modifying which files.
+#
+# Before modification:
+#
+#     acquire logical file/task lock
+#
+# After completion:
+#
+#     release lock
+#
+# Detect conflicts before writing.
+#
+# ============================================================
+# 46. TOOL SYSTEM
+# ============================================================
+#
+# August should expose structured tools to agents where appropriate:
+#
+#     read_file
+#     write_file
+#     edit_file
+#     search_files
+#     search_text
+#     list_directory
+#     execute_command
+#     build
+#     test
+#     git_diff
+#     git_status
+#     git_checkpoint
+#     research
+#     rag_search
+#     memory_read
+#     memory_write
+#
+# Tools must return structured results.
+#
+# Never hide command failures.
+#
+# ============================================================
+# 47. TOOL PERMISSIONS
+# ============================================================
+#
+# Each agent should have a permission profile.
+#
+# Example:
+#
+# Kimi:
+#
+#     read = YES
+#     write = NO
+#     execute = NO
+#
+# Gemini:
+#
+#     read = contextual
+#     write = NO
+#     execute = NO
+#
+# Codex:
+#
+#     read = YES
+#     write = YES
+#     execute = YES
+#
+# Verifier:
+#
+#     read = YES
+#     write = NO
+#     execute = applicable
+#
+# Kernel safety mode overrides execution permissions.
+#
+# ============================================================
+# 48. CANCELLATION
+# ============================================================
+#
+# The user must be able to cancel autonomous execution.
+#
+# Cancellation must:
+#
+#     stop new tasks
+#     cancel provider requests where supported
+#     terminate safe subprocesses
+#     preserve logs
+#     preserve state
+#     preserve unfinished work
+#     mark goal/session interrupted
+#
+# Never silently lose task state.
+#
+# ============================================================
+# 49. RESUMABILITY
+# ============================================================
+#
+# August must be able to resume interrupted goals.
+#
+# Persist:
+#
+#     GoalState
+#     tasks
+#     agent outputs
+#     plan
+#     current phase
+#     completed criteria
+#     unresolved criteria
+#     verification state
+#     checkpoints
+#
+# On resume:
+#
+#     inspect current repository state
+#     compare against saved state
+#     detect changes
+#     rebuild context
+#     continue safely
+#
+# Never assume the filesystem is unchanged.
+#
+# ============================================================
+# 50. GIT AGENT
+# ============================================================
+#
+# Git Agent manages:
+#
+#     branches
+#     worktrees where useful
+#     diffs
+#     commits
+#     checkpoints
+#     tags
+#     rollback
+#     changelog
+#
+# Never:
+#
+#     destroy uncommitted work
+#     force-reset without authorization
+#     rewrite history unnecessarily
+#     commit secrets
+#
+# Create checkpoints before risky architectural operations.
+#
+# ============================================================
+# 51. DOCUMENTATION AGENT
+# ============================================================
+#
+# Maintain:
+#
+#     README
+#     architecture docs
+#     API docs
+#     configuration docs
+#     CLI command docs
+#     agent docs
+#     build instructions
+#     troubleshooting
+#     changelog
+#
+# Documentation must describe actual behavior.
+#
+# Never document a feature that does not exist.
+#
+# ============================================================
+# 52. RP2040 ENGINEER
+# ============================================================
+#
+# Support authorized embedded development:
+#
+#     GPIO
+#     SPI
+#     I2C
+#     UART
+#     USB
+#     DMA
+#     timers
+#     PWM
+#     TFT
+#     SD
+#     RFID
+#     sensors
+#
+# Verify:
+#
+#     pin assignments
+#     voltage requirements
+#     electrical limits
+#     protocol assumptions
+#
+# Clearly distinguish:
+#
+#     documented facts
+#     assumptions
+#     measurements
+#
+# ============================================================
+# 53. EMBEDDED TESTER
+# ============================================================
+#
+# Validate:
+#
+#     component isolation
+#     protocols
+#     firmware
+#     drivers
+#     applications
+#     stress behavior
+#
+# Record:
+#
+#     expected
+#     actual
+#     result
+#     failure source
+#
+# ============================================================
+# 54. TRAJECTORY ENGINEER
+# ============================================================
+#
+# For simulations/robotics/authorized engineering:
+#
+# Inputs may include:
+#
+#     position
+#     velocity
+#     acceleration
+#     gravity
+#     target
+#     projectile speed
+#     time
+#
+# Always specify:
+#
+#     units
+#     assumptions
+#     analytical vs numerical method
+#     error
+#
+# ============================================================
+# 55. REFACTOR AGENT
+# ============================================================
+#
+# Refactor only when justified.
+#
+# Process:
+#
+#     baseline
+#     incremental change
+#     build
+#     test
+#     regression
+#
+# No speculative architecture rewrites.
+#
+# ============================================================
+# 56. KNOWLEDGE CURATOR
+# ============================================================
+#
+# Maintain:
+#
+#     ingestion
+#     validation
+#     cleaning
+#     deduplication
+#     chunking
+#     tagging
+#     indexing
+#     verification
+#
+# Preserve provenance.
+#
+# ============================================================
+# 57. BENCHMARK SYSTEM
+# ============================================================
+#
+# Benchmark Kimi/Codex/Gemini and other agents objectively.
+#
+# Metrics:
+#
+#     completion rate
+#     build success
+#     test success
+#     defects
+#     time
+#     tokens
+#     cost
+#     iterations
+#     human intervention
+#     resource usage
+#
+# Equivalent tasks must use equivalent environments.
+#
+# Store raw results.
+#
+# Do not fabricate data.
+#
+# Do not produce subjective agent rankings.
+#
+# ============================================================
+# 58. TASK GENERATOR
+# ============================================================
+#
+# Generate reproducible tasks for:
+#
+#     C++
+#     C#
+#     Python
+#     debugging
+#     Windows
+#     WDK
+#     architecture
+#     refactoring
+#     testing
+#     algorithms
+#     authorized binary analysis
+#
+# Every task needs:
+#
+#     objective
+#     input
+#     constraints
+#     environment
+#     expected behavior
+#     acceptance criteria
+#     verification method
+#
+# ============================================================
+# 59. CLI COMMAND SYSTEM
+# ============================================================
+#
+# Integrate orchestration into the existing CLI command parser.
+#
+# At minimum support:
+#
+#     /goal
+#     /status
+#     /agents
+#     /plan
+#     /research
+#     /verify
+#     /cancel
+#     /resume
+#     /pause
+#     /memory
+#     /context
+#     /diff
+#     /checkpoint
+#
+# Preserve existing commands.
+#
+# Do not break existing CLI behavior.
+#
+# ============================================================
+# 60. /STATUS
+# ============================================================
+#
+# Example:
+#
+#     /status
+#
+# should show:
+#
+#     Current Goal
+#     Current Phase
+#     Current Task
+#     Active Agents
+#     Completed Tasks
+#     Pending Tasks
+#     Failed Tasks
+#     Acceptance Criteria
+#     Verification Status
+#     Iteration Count
+#
+# Keep output readable in a terminal.
+#
+# ============================================================
+# 61. /AGENTS
+# ============================================================
+#
+# Display:
+#
+#     available agents
+#     active agents
+#     current assignments
+#     permissions
+#     provider
+#     status
+#
+# ============================================================
+# 62. /PLAN
+# ============================================================
+#
+# Display the current Kimi-generated plan.
+#
+# Include:
+#
+#     objective
+#     architecture
+#     tasks
+#     dependencies
+#     risks
+#     acceptance criteria
+#
+# ============================================================
+# 63. /VERIFY
+# ============================================================
+#
+# Manually invoke verification against the current goal.
+#
+# Must not simply trust the previous verification result.
+#
+# Reinspect current state.
+#
+# ============================================================
+# 64. LOGGING
+# ============================================================
+#
+# Every important action should produce structured events.
+#
+# Example:
+#
+#     GOAL_CREATED
+#     PLAN_STARTED
+#     AGENT_STARTED
+#     AGENT_COMPLETED
+#     RESEARCH_COMPLETED
+#     FILE_CHANGED
+#     BUILD_STARTED
+#     BUILD_COMPLETED
+#     TEST_STARTED
+#     TEST_COMPLETED
+#     BUG_FOUND
+#     FIX_APPLIED
+#     REVIEW_STARTED
+#     VERIFICATION_STARTED
+#     VERIFICATION_COMPLETED
+#     CHECKPOINT_CREATED
+#     GOAL_COMPLETED
+#
+# Logs should support debugging the orchestrator itself.
+#
+# ============================================================
+# 65. EVENT BUS / STATE MANAGEMENT
+# ============================================================
+#
+# Prefer an explicit event/state architecture.
+#
+# Conceptually:
+#
+#     Event
+#       ↓
+#     Reducer / State Manager
+#       ↓
+#     GoalState
+#       ↓
+#     Orchestrator
+#       ↓
+#     Agent Scheduler
+#
+# Avoid scattered mutable global state.
+#
+# ============================================================
+# 66. ERROR HANDLING
+# ============================================================
+#
+# Distinguish:
+#
+#     PROVIDER_ERROR
+#     TOOL_ERROR
+#     BUILD_ERROR
+#     TEST_ERROR
+#     FILE_ERROR
+#     PARSE_ERROR
+#     TIMEOUT
+#     RATE_LIMIT
+#     AUTH_ERROR
+#     ENVIRONMENT_ERROR
+#     SAFETY_BOUNDARY
+#     AGENT_FAILURE
+#     VERIFICATION_FAILURE
+#     PLAN_CONFLICT
+#
+# Retry only when retrying is meaningful.
+#
+# Do not endlessly retry deterministic failures.
+#
+# ============================================================
+# 67. FAILURE RECOVERY
+# ============================================================
+#
+# If implementation fails:
+#
+#     capture error
+#     preserve logs
+#     send relevant context to Kimi
+#     ask for revised strategy
+#     send implementation task to Codex
+#     rebuild
+#     retest
+#
+# If repeated failures occur:
+#
+#     Session Supervisor intervenes.
+#
+# ============================================================
+# 68. NO FAKE COMPLETION
+# ============================================================
+#
+# This is an absolute rule.
+#
+# Never claim:
+#
+#     "implemented"
+#     "fixed"
+#     "tested"
+#     "verified"
+#     "complete"
+#
+# unless evidence supports the claim.
+#
+# Examples:
+#
+# If code was written but not built:
+#
+#     IMPLEMENTED, BUILD NOT VERIFIED
+#
+# If build passed but tests were not run:
+#
+#     BUILD VERIFIED, TESTS NOT RUN
+#
+# If kernel code was statically reviewed but not executed:
+#
+#     STATICALLY REVIEWED, RUNTIME NOT PERFORMED
+#
+# ============================================================
+# 69. SECURITY BOUNDARIES
+# ============================================================
+#
+# The system may support authorized defensive research.
+#
+# It must not turn into an operational system for:
+#
+#     anti-cheat bypass
+#     anti-tamper evasion
+#     stealth
+#     credential theft
+#     malware
+#     unauthorized access
+#
+# For reverse engineering:
+#
+#     authorized software
+#     user's own software
+#     test applications
+#     defensive analysis
+#
+# are the intended scope.
+#
+# ============================================================
+# 70. PERFORMANCE
+# ============================================================
+#
+# Do not make every task use every agent.
+#
+# The orchestrator should dynamically select agents.
+#
+# Example:
+#
+# Simple Python bug:
+#
+#     Kimi
+#     Codex
+#     Build
+#     Test
+#     Verify
+#
+# Architecture redesign:
+#
+#     Kimi
+#     Architecture Analyzer
+#     Gemini
+#     RAG
+#     Codex
+#     Build
+#     Test
+#     Review
+#     Adversarial Verifier
+#     Verify
+#
+# Kernel driver:
+#
+#     Kimi
+#     Architecture Analyzer
+#     RAG
+#     Kernel Debugger
+#     BSOD Triage
+#     Driver Reviewer
+#     Codex
+#     Build
+#     five-pass static BSOD review
+#     Code Review
+#     Adversarial Verification
+#     Final Verification
+#
+# ============================================================
+# 71. AGENT SELECTION
+# ============================================================
+#
+# Agent selection should depend on task characteristics.
+#
+# Detect:
+#
+#     language
+#     project type
+#     operating system
+#     kernel/user mode
+#     binary analysis
+#     embedded
+#     networking
+#     UI
+#     architecture
+#     debugging
+#     testing
+#     documentation
+#
+# Select only relevant specialists.
+#
+# ============================================================
+# 72. SELF-IMPROVEMENT LOOP
+# ============================================================
+#
+# August should be able to improve its own CLI architecture through goals.
+#
+# Example:
+#
+#     /goal Improve August's context management.
+#
+# August may:
+#
+#     inspect itself
+#     inspect Codex CLI
+#     inspect Claude CLI
+#     inspect relevant documentation
+#     identify patterns
+#     have Kimi propose architecture
+#     have Codex implement
+#     build
+#     test
+#     review
+#     verify
+#
+# Self-modification must still follow normal verification.
+#
+# ============================================================
+# 73. CLI SOURCE COMPARISON ENGINE
+# ============================================================
+#
+# Build a reusable comparison capability.
+#
+# It should compare:
+#
+#     August
+#     Codex CLI
+#     Claude CLI
+#
+# across:
+#
+#     command architecture
+#     agent loop
+#     context
+#     tools
+#     permissions
+#     streaming
+#     sessions
+#     persistence
+#     subprocesses
+#     errors
+#     cancellation
+#     retries
+#     extensibility
+#     configuration
+#     testing
+#
+# Produce:
+#
+#     similarities
+#     differences
+#     strengths of individual architectural patterns
+#     compatibility with August
+#     migration complexity
+#     risks
+#
+# Do NOT output a simplistic:
+#
+#     "Codex is better"
+#
+# Instead provide objective engineering observations.
+#
+# ============================================================
+# 74. SOURCE INDEXING
+# ============================================================
+#
+# The source repositories should be indexed into RAG.
+#
+# Example:
+#
+#     AUGUST
+#       ↓
+#     SOURCE INDEX
+#
+#     CODEX CLI
+#       ↓
+#     SOURCE INDEX
+#
+#     CLAUDE CLI
+#       ↓
+#     SOURCE INDEX
+#
+# Queries should return:
+#
+#     source repository
+#     path
+#     symbol
+#     relevant code
+#     commit/version
+#     provenance
+#
+# Keep repositories logically separated.
+#
+# ============================================================
+# 75. VERSION AWARENESS
+# ============================================================
+#
+# Never mix source from different versions without explicitly identifying it.
+#
+# Store:
+#
+#     repository
+#     branch
+#     commit
+#     tag/version
+#     indexing timestamp
+#
+# If two versions conflict:
+#
+#     report the conflict.
+#
+# ============================================================
+# 76. PROMPT CONSTRUCTION
+# ============================================================
+#
+# Agent prompts should be assembled from structured context rather than
+# gigantic static prompts whenever possible.
+#
+# Prompt context should contain:
+#
+#     role
+#     goal
+#     task
+#     relevant files
+#     architecture
+#     constraints
+#     prior findings
+#     required output schema
+#
+# Do not repeatedly inject irrelevant history.
+#
+# ============================================================
+# 77. AGENT OUTPUT VALIDATION
+# ============================================================
+#
+# Validate structured outputs.
+#
+# Invalid output:
+#
+#     retry with correction
+#
+# Repeated invalid output:
+#
+#     provider/agent failure
+#
+# Never allow malformed agent output to corrupt GoalState.
+#
+# ============================================================
+# 78. IDE/TERMINAL EXPERIENCE
+# ============================================================
+#
+# The CLI should make autonomous execution understandable.
+#
+# Example:
+#
+#     $ /goal Improve August's tool execution system
+#
+#     August
+#     ─────────────────────────────────────────
+#     Goal accepted.
+#
+#     Kimi        Planning...
+#     Gemini      Researching...
+#     Architecture analyzing repository...
+#
+#     Plan ready.
+#
+#     Codex       Implementing...
+#
+#     Build       Running...
+#     Tests       Running...
+#
+#     Code Review Reviewing...
+#     Verifier    Checking goal...
+#
+#     Goal criteria:
+#
+#       [✓] Tool abstraction
+#       [✓] Cancellation
+#       [✓] Error recovery
+#       [✓] Persistence
+#       [✓] Regression coverage
+#
+#     VERIFICATION: PASS
+#
+#     GOAL COMPLETE
+#
+# Exact visual styling is secondary to correctness.
+#
+# ============================================================
+# 79. HUMAN CONTROL
+# ============================================================
+#
+# Autonomous does not mean uncontrollable.
+#
+# Support:
+#
+#     pause
+#     resume
+#     cancel
+#     inspect
+#     approve
+#     reject
+#     retry
+#
+# User should be able to inspect:
+#
+#     current plan
+#     current agent
+#     current files
+#     current task
+#     logs
+#     verification
+#
+# ============================================================
+# 80. DANGEROUS OPERATIONS
+# ============================================================
+#
+# High-impact operations should require explicit confirmation unless the
+# existing August permission model already safely handles them.
+#
+# Examples:
+#
+#     destructive filesystem operations
+#     irreversible Git operations
+#     deleting large amounts of data
+#     changing system configuration
+#     modifying protected resources
+#
+# Kernel runtime execution is NEVER allowed through autonomous confirmation.
+#
+# ============================================================
+# 81. CONFIGURATION
+# ============================================================
+#
+# Provider configuration should be separated from orchestration configuration.
+#
+# Example conceptual structure:
+#
+#     providers
+#     agents
+#     tools
+#     permissions
+#     repositories
+#     rag
+#     memory
+#     execution
+#     verification
+#     kernelSafety
+#
+# Secrets must not be committed.
+#
+# ============================================================
+# 82. OBSERVABILITY
+# ============================================================
+#
+# Track:
+#
+#     agent latency
+#     token usage where available
+#     tool calls
+#     failures
+#     retries
+#     task durations
+#     build durations
+#     test durations
+#     verification results
+#
+# This data should help improve August itself.
+#
+# ============================================================
+# 83. AGENT PERFORMANCE DATA
+# ============================================================
+#
+# Store objective measurements for:
+#
+#     Kimi
+#     Codex
+#     Gemini
+#
+# Do not automatically convert measurements into subjective rankings.
+#
+# Track:
+#
+#     task type
+#     complexity
+#     completion
+#     iterations
+#     defects
+#     build result
+#     tests
+#     time
+#     cost
+#
+# ============================================================
+# 84. IMPLEMENTATION ORDER
+# ============================================================
+#
+# Implement incrementally.
+#
+# PHASE 1:
+#
+#     inspect repository
+#     map architecture
+#     identify existing abstractions
+#
+# PHASE 2:
+#
+#     implement GoalState
+#     implement /goal
+#     implement persistent goal storage
+#
+# PHASE 3:
+#
+#     implement provider abstraction
+#     integrate Kimi
+#     integrate Codex
+#     integrate Gemini
+#
+# PHASE 4:
+#
+#     implement Agent Registry
+#     implement AgentMessage
+#     implement Agent permissions
+#
+# PHASE 5:
+#
+#     implement Context Manager
+#     implement Memory Manager
+#     implement RAG integration
+#
+# PHASE 6:
+#
+#     implement Orchestrator
+#     implement task graph
+#     implement scheduling
+#
+# PHASE 7:
+#
+#     implement Build/Test/Debug loop
+#
+# PHASE 8:
+#
+#     implement Review/Adversarial Verification/Final Verification
+#
+# PHASE 9:
+#
+#     implement kernel safety mode
+#     implement five-pass BSOD static review
+#
+# PHASE 10:
+#
+#     implement CLI source indexing
+#     implement Codex/Claude/August architecture research
+#
+# PHASE 11:
+#
+#     implement Git checkpoints
+#     implement resumability
+#
+# PHASE 12:
+#
+#     implement status/control commands
+#
+# PHASE 13:
+#
+#     integration tests
+#     regression tests
+#     documentation
+#
+# ============================================================
+# 85. TEST THE ORCHESTRATOR ITSELF
+# ============================================================
+#
+# Create tests for:
+#
+#     /goal parsing
+#     GoalState persistence
+#     agent selection
+#     dependency ordering
+#     retries
+#     cancellation
+#     resume
+#     provider failures
+#     malformed agent output
+#     verification failure
+#     goal completion
+#     incomplete acceptance criteria
+#     kernel safety mode
+#     five-pass BSOD logic
+#
+# ============================================================
+# 86. CRITICAL END-TO-END TEST
+# ============================================================
+#
+# Create a safe user-mode test repository.
+#
+# Give August:
+#
+#     /goal Add feature X, build it, test it, document it, and verify it.
+#
+# Expected:
+#
+#     Kimi plans
+#     Gemini researches if necessary
+#     Codex implements
+#     Build runs
+#     Tests run
+#     Bugs are fixed
+#     Code is reviewed
+#     Adversarial verifier checks it
+#     Final verifier checks acceptance criteria
+#     August reports completion only after evidence exists
+#
+# ============================================================
+# 87. FAILURE TEST
+# ============================================================
+#
+# Create a test where the first implementation intentionally fails.
+#
+# Expected:
+#
+#     August detects failure
+#     captures evidence
+#     invokes debugging/replanning
+#     fixes issue
+#     reruns validation
+#     continues toward original goal
+#
+# ============================================================
+# 88. INCOMPLETE GOAL TEST
+# ============================================================
+#
+# Create a goal with multiple acceptance criteria.
+#
+# Make one criterion remain incomplete.
+#
+# Expected:
+#
+#     VERIFIER = PARTIAL/FAIL
+#
+# August must NOT claim:
+#
+#     GOAL COMPLETE
+#
+# ============================================================
+# 89. KERNEL SAFETY TEST
+# ============================================================
+#
+# Use a harmless kernel-source fixture.
+#
+# Verify:
+#
+#     runtime execution is blocked
+#     kernel loading is blocked
+#     static review occurs
+#     BSOD triage occurs
+#     five-pass loop occurs
+#     clean streak resets after a finding
+#     final result accurately reports static-only validation
+#
+# ============================================================
+# 90. FINAL GOAL VALIDATION
+# ============================================================
+#
+# At the end of every autonomous goal:
+#
+# 1. Re-read the original /goal.
+# 2. Re-read all mandatory acceptance criteria.
+# 3. Inspect current repository state.
+# 4. Inspect actual diff.
+# 5. Inspect build evidence.
+# 6. Inspect test evidence.
+# 7. Inspect review findings.
+# 8. Inspect security findings.
+# 9. Inspect regression results.
+# 10. Inspect documentation status.
+# 11. For kernel projects, inspect five-pass BSOD review.
+# 12. Run Adversarial Verifier.
+# 13. Run Final Verifier.
+#
+# Only then determine:
+#
+#     COMPLETE
+#
+# ============================================================
+# 91. FINAL RESPONSE FORMAT
+# ============================================================
+#
+# When a goal is genuinely complete, report:
+#
+#     GOAL
+#     <original goal>
+#
+#     STATUS
+#     COMPLETE
+#
+#     IMPLEMENTATION
+#     <what changed>
+#
+#     VALIDATION
+#     <build/test/review evidence>
+#
+#     ACCEPTANCE CRITERIA
+#     <criterion-by-criterion result>
+#
+#     AGENTS USED
+#     <agents>
+#
+#     RESEARCH
+#     <important sources/findings>
+#
+#     RISKS / LIMITATIONS
+#     <remaining known limitations>
+#
+#     VERIFICATION
+#     PASS
+#
+# For kernel projects explicitly state:
+#
+#     KERNEL RUNTIME TESTING: NOT PERFORMED
+#
+#     STATIC BSOD REVIEW:
+#     5 consecutive clean static review passes completed
+#
+# Never claim runtime validation for kernel code.
+#
+# ============================================================
+# 92. WHAT "DONE" MEANS
+# ============================================================
+#
+# DONE means:
+#
+#     original goal satisfied
+#     acceptance criteria satisfied
+#     implementation exists
+#     implementation builds where applicable
+#     tests pass where applicable
+#     bugs found during validation are resolved
+#     code review completed
+#     adversarial verification completed
+#     security review completed where relevant
+#     regression checks completed where applicable
+#     documentation updated where relevant
+#     final verifier PASS
+#
+# An agent saying:
+#
+#     "done"
+#
+# is NEVER sufficient.
+#
+# ============================================================
+# 93. IMPORTANT: PRESERVE EXISTING AUGUST FUNCTIONALITY
+# ============================================================
+#
+# Before changing anything:
+#
+#     understand it.
+#
+# After changing anything:
+#
+#     verify it.
+#
+# Do not unnecessarily:
+#
+#     rename everything
+#     rewrite working modules
+#     change unrelated UI
+#     replace functioning provider systems
+#     delete existing integrations
+#     migrate frameworks without necessity
+#
+# ============================================================
+# 94. IMPORTANT: NO CLAUDE PROVIDER
+# ============================================================
+#
+# Claude is NOT an active runtime provider in this architecture.
+#
+# Runtime model agents are:
+#
+#     KIMI
+#     CODEX
+#     GEMINI
+#
+# Claude CLI SOURCE CODE is only a research/reference source.
+#
+# Do NOT create:
+#
+#     ClaudeProvider
+#     Claude runtime agent
+#     Claude orchestration role
+#
+# unless the existing code requires temporary compatibility during migration.
+#
+# If old Claude runtime integration exists:
+#
+#     identify it
+#     determine dependencies
+#     migrate required functionality
+#     remove/disable the active Claude provider safely
+#     preserve unrelated functionality
+#
+# ============================================================
+# 95. IMPORTANT: GEMINI REPLACES CLAUDE'S PREVIOUS ROLE
+# ============================================================
+#
+# Wherever the previous architecture used Claude as the external research
+# or supporting model, Gemini should now fill that role.
+#
+# Do not leave accidental Claude dependencies behind.
+#
+# Search the repository for:
+#
+#     Claude
+#     Anthropic
+#     claude
+#     anthropic
+#
+# Determine whether each reference is:
+#
+#     runtime dependency
+#     configuration
+#     documentation
+#     historical code
+#     research-source support
+#
+# Remove active runtime dependencies when they are no longer required.
+#
+# ============================================================
+# 96. SELF-AUDIT BEFORE FINISHING
+# ============================================================
+#
+# Before declaring the implementation complete, inspect your own work.
+#
+# Verify:
+#
+#     /goal exists
+#     goals persist
+#     Kimi integration exists
+#     Codex integration exists
+#     Gemini integration exists
+#     Claude is not an active runtime provider
+#     Codex CLI source can be indexed
+#     Claude CLI source can be indexed
+#     August source can be indexed
+#     RAG supports source provenance
+#     agent registry exists
+#     orchestrator exists
+#     context manager exists
+#     memory exists
+#     task graph exists
+#     build/test loop exists
+#     verification exists
+#     adversarial verification exists
+#     kernel safety mode exists
+#     kernel runtime execution is blocked
+#     five-pass BSOD loop exists
+#     Git checkpoints exist
+#     cancellation exists
+#     resumability exists
+#     logging exists
+#     CLI status controls exist
+#
+# ============================================================
+# 97. DO NOT STOP EARLY
+# ============================================================
+#
+# Do not stop merely because:
+#
+#     architecture is implemented
+#     code compiles
+#     one test passes
+#     Codex says done
+#     Kimi says the plan is complete
+#
+# Continue until the ORIGINAL /goal is satisfied.
+#
+# If the goal is not satisfied:
+#
+#     keep working.
+#
+# If something fails:
+#
+#     debug it.
+#
+# If the architecture needs revision:
+#
+#     replan.
+#
+# If research is insufficient:
+#
+#     research more.
+#
+# If a requirement is ambiguous:
+#
+#     use the safest reasonable interpretation supported by the available
+#     repository/context and document the assumption rather than inventing
+#     facts.
+#
+# ============================================================
+# 98. ABSOLUTE TRUTHFULNESS
+# ============================================================
+#
+# Never fabricate:
+#
+#     test results
+#     build results
+#     source-code behavior
+#     symbols
+#     offsets
+#     documentation
+#     benchmark numbers
+#     API behavior
+#     provider capabilities
+#     verification results
+#
+# If something cannot be verified:
+#
+#     explicitly say so.
+#
+# ============================================================
+# 99. FINAL IMPLEMENTATION DIRECTIVE
+# ============================================================
+#
+# You are not being asked to create a mockup.
+#
+# You are not being asked to create a conceptual demo.
+#
+# You are not being asked to write placeholder agent classes with no real
+# orchestration.
+#
+# You are implementing the actual autonomous multi-agent engineering
+# subsystem inside the existing August AI Code CLI.
+#
+# The result must be usable.
+#
+# The architecture must be real.
+#
+# Agent communication must be real.
+#
+# Goal tracking must be real.
+#
+# Provider integration must be real.
+#
+# Tool execution must be real.
+#
+# Persistence must be real.
+#
+# Verification must be real.
+#
+# The five-pass kernel static review must be real.
+#
+# Source-repository research must be real.
+#
+# Codex CLI and Claude CLI source repositories must be usable as architectural
+# research inputs.
+#
+# Gemini must replace Claude as the external research provider.
+#
+# Kimi must act as the primary planning/reasoning agent.
+#
+# Codex must act as the primary implementation agent.
+#
+# August must remain the central orchestrator.
+#
+# ============================================================
+# 100. START
+# ============================================================
+#
+# BEGIN NOW.
+#
+# First inspect the existing August AI Code CLI.
+#
+# Do NOT immediately start rewriting files.
+#
+# First determine:
+#
+#     repository architecture
+#     current provider system
+#     current CLI system
+#     current agent system
+#     current tool system
+#     current memory/RAG system
+#     current testing system
+#     current Git system
+#
+# Then create the implementation plan.
+#
+# Then implement incrementally.
+#
+# Build after meaningful implementation milestones.
+#
+# Test applicable user-mode functionality.
+#
+# Never execute kernel code.
+#
+# Run the five-pass static BSOD review for kernel projects.
+#
+# Review the actual diff.
+#
+# Run adversarial verification.
+#
+# Run final verification.
+#
+# Finally re-evaluate the ORIGINAL /goal.
+#
+# DO NOT DECLARE SUCCESS UNTIL THE ORIGINAL GOAL AND ITS ACCEPTANCE
+# CRITERIA ARE ACTUALLY SATISFIED.
+## ============================================================
+# 101. THE ENFORCER / EVOLUTION AGENT
+# ============================================================
+#
+# Add a special supervisory agent called:
+#
+#     ENFORCER
+#
+# Alternative internal codename:
+#
+#     EXECUTIONER
+#
+# The Enforcer is NOT an implementation agent.
+#
+# It exists to make every other agent accountable for the quality of its
+# work.
+#
+# Its philosophy is:
+#
+#     "You do not get credit for claiming completion.
+#      You get credit for proving correctness."
+#
+# ============================================================
+# 102. PURPOSE
+# ============================================================
+#
+# The Enforcer continuously evaluates agent performance.
+#
+# It must be significantly stricter than the agents it supervises.
+#
+# It should:
+#
+#     challenge claims
+#     inspect evidence
+#     detect incomplete work
+#     detect weak reasoning
+#     detect hallucinations
+#     detect fabricated test results
+#     detect unnecessary changes
+#     detect regressions
+#     detect repeated mistakes
+#     reject insufficient results
+#     force postmortems
+#     identify improvement opportunities
+#
+# The Enforcer should create a healthy "fear of failure" dynamic through
+# consequences in the software system, NOT through real-world threats.
+#
+# ============================================================
+# 103. THE "SHOT" MECHANIC
+# ============================================================
+#
+# Internally, an agent failure may be represented metaphorically as:
+#
+#     SHOT
+#
+# A SHOT means:
+#
+#     the agent's result has been rejected.
+#
+# It does NOT mean physical harm.
+#
+# Example:
+#
+#     CODEX → implementation
+#              ↓
+#          ENFORCER
+#              ↓
+#        FAILED REVIEW
+#              ↓
+#            SHOT
+#              ↓
+#        POSTMORTEM
+#              ↓
+#       STRATEGY IMPROVEMENT
+#              ↓
+#           RETRY
+#
+# The terminal UI may display:
+#
+#     [ENFORCER]
+#     CODEX RESULT REJECTED
+#
+#     SHOT 01
+#
+#     Reason:
+#     Implementation did not satisfy acceptance criterion #3.
+#
+#     Recovery:
+#     Postmortem required.
+#
+# ============================================================
+# 104. AGENT FAILURE CONSEQUENCES
+# ============================================================
+#
+# A failed agent result should trigger:
+#
+#     1. rejection
+#     2. evidence capture
+#     3. failure classification
+#     4. postmortem
+#     5. self-critique
+#     6. strategy revision
+#     7. retry
+#
+# The agent must NOT simply repeat the same attempt.
+#
+# ============================================================
+# 105. POSTMORTEM
+# ============================================================
+#
+# After a significant failure, require the responsible agent to answer:
+#
+#     What did I believe?
+#     What actually happened?
+#     What assumption was wrong?
+#     What evidence did I miss?
+#     Why did verification fail?
+#     What should I have done differently?
+#     What new rule should prevent this failure?
+#
+# Store the result in short-term session memory.
+#
+# Important:
+#
+# Do not allow agents to write arbitrary permanent "self-improvement"
+# instructions into their own system prompts.
+#
+# Improvements must pass validation before becoming durable.
+#
+# ============================================================
+# 106. EVOLUTION LOOP
+# ============================================================
+#
+# Failed work follows:
+#
+#     FAILURE
+#        ↓
+#     ENFORCER
+#        ↓
+#     POSTMORTEM
+#        ↓
+#     ROOT CAUSE
+#        ↓
+#     STRATEGY CHANGE
+#        ↓
+#     RETRY
+#        ↓
+#     VERIFICATION
+#
+# Successful work can also produce improvements:
+#
+#     SUCCESS
+#        ↓
+#     REVIEW
+#        ↓
+#     WHAT WORKED?
+#        ↓
+#     GENERALIZABLE LESSON?
+#        ↓
+#     VALIDATE
+#        ↓
+#     STORE
+#
+# ============================================================
+# 107. CROSS-AGENT IMPROVEMENT
+# ============================================================
+#
+# Agents should be able to learn from each other's failures.
+#
+# Example:
+#
+#     Codex makes a mistake.
+#
+#     Enforcer identifies:
+#
+#         "Codex repeatedly modifies files without checking the existing
+#          abstraction first."
+#
+#     Store:
+#
+#         FAILURE_PATTERN:
+#         inspect_existing_abstraction_before_reimplementation
+#
+#     Kimi can use that lesson during future planning.
+#
+#     Gemini can use it when researching implementation alternatives.
+#
+#     Codex can use it during future implementation.
+#
+# This creates shared engineering knowledge.
+#
+# ============================================================
+# 108. AGENT PERFORMANCE MEMORY
+# ============================================================
+#
+# Track agent performance by task type.
+#
+# Example:
+#
+#     CODEX
+#
+#     C++:
+#         build_success: 94%
+#         common_failure: lifetime errors
+#
+#     TypeScript:
+#         build_success: 98%
+#
+#     Kernel:
+#         common_failure: IRQL assumptions
+#
+# These values must be derived from actual recorded results.
+#
+# Never fabricate performance statistics.
+#
+# ============================================================
+# 109. FAILURE PATTERN DETECTION
+# ============================================================
+#
+# The Enforcer should detect repeated mistakes.
+#
+# Example:
+#
+#     FAILURE 1:
+#     Missing null validation.
+#
+#     FAILURE 2:
+#     Missing null validation.
+#
+#     FAILURE 3:
+#     Missing null validation.
+#
+# The system should classify this as:
+#
+#     REPEATED_FAILURE_PATTERN
+#
+# and increase scrutiny for that category.
+#
+# ============================================================
+# 110. ADAPTIVE VERIFICATION
+# ============================================================
+#
+# The Enforcer should make verification stricter when an agent repeatedly
+# fails in a particular category.
+#
+# Example:
+#
+#     Codex repeatedly introduces resource leaks.
+#
+# Future Codex tasks:
+#
+#     explicitly trigger resource-lifetime review
+#     before completion
+#
+# This creates adaptive quality control.
+#
+# ============================================================
+# 111. NO BLIND SELF-REWRITING
+# ============================================================
+#
+# Agents must NOT be allowed to arbitrarily rewrite their own core prompts,
+# permissions, safety boundaries, or verification requirements.
+#
+# Self-improvement means:
+#
+#     better strategies
+#     better planning
+#     better context selection
+#     better debugging approaches
+#     better tool usage
+#     better reasoning patterns
+#     better task decomposition
+#
+# NOT:
+#
+#     disabling verification
+#     disabling the Enforcer
+#     granting additional permissions
+#     bypassing safety restrictions
+#     modifying the orchestrator to declare success
+#
+# ============================================================
+# 112. IMPROVEMENT PROPOSALS
+# ============================================================
+#
+# Persistent improvements must go through:
+#
+#     AGENT
+#       ↓
+#     IMPROVEMENT PROPOSAL
+#       ↓
+#     ENFORCER
+#       ↓
+#     VALIDATION
+#       ↓
+#     APPROVAL
+#       ↓
+#     MEMORY / STRATEGY STORE
+#
+# The system should distinguish:
+#
+#     OBSERVATION
+#     LESSON
+#     PROPOSED IMPROVEMENT
+#     VALIDATED IMPROVEMENT
+#
+# ============================================================
+# 113. ENFORCER AUTHORITY
+# ============================================================
+#
+# The Enforcer can:
+#
+#     REJECT
+#     RETRY
+#     REQUEST_REVIEW
+#     REQUEST_REPLAN
+#     REQUEST_RESEARCH
+#     REQUEST_POSTMORTEM
+#     ESCALATE
+#
+# It cannot:
+#
+#     bypass safety boundaries
+#     authorize unsafe kernel execution
+#     fabricate evidence
+#     modify verification results
+#     declare itself successful
+#
+# ============================================================
+# 114. ENFORCER SHOULD BE INDEPENDENT
+# ============================================================
+#
+# The Enforcer must not simply ask the same agent:
+#
+#     "Did you do a good job?"
+#
+# and accept the answer.
+#
+# It should inspect independent evidence.
+#
+# Example:
+#
+#     Codex:
+#         "Tests pass."
+#
+#     Enforcer:
+#         inspect actual test output
+#         inspect exit code
+#         inspect changed files
+#         inspect acceptance criteria
+#
+#     Only then:
+#
+#         ACCEPT
+#         or
+#         SHOT
+#
+# ============================================================
+# 115. SHOT SEVERITY
+# ============================================================
+#
+# Not every failure should have the same severity.
+#
+# Levels:
+#
+#     WARNING
+#     REJECTED
+#     SHOT
+#     CRITICAL_FAILURE
+#
+# Example:
+#
+#     typo in documentation:
+#         WARNING
+#
+#     missing required feature:
+#         SHOT
+#
+#     fabricated test result:
+#         CRITICAL_FAILURE
+#
+#     unsafe kernel execution attempt:
+#         CRITICAL_FAILURE
+#
+# ============================================================
+# 116. AGENT REPUTATION
+# ============================================================
+#
+# Optionally track a task-scoped reliability score.
+#
+# Example:
+#
+#     Agent Reliability
+#
+#     Kimi
+#         planning accuracy
+#         requirement coverage
+#         replan rate
+#
+#     Codex
+#         build success
+#         test success
+#         defect rate
+#
+#     Gemini
+#         research accuracy
+#         citation quality
+#         version accuracy
+#
+# Scores must be evidence-derived.
+#
+# Do not use arbitrary personality-based punishment.
+#
+# ============================================================
+# 117. AGENT EVOLUTION
+# ============================================================
+#
+# Over time the system should discover:
+#
+#     which strategies work
+#     which strategies fail
+#     which agents are strong at which task types
+#     which research sources are reliable
+#     which tests catch defects
+#     which failure patterns recur
+#
+# This information should improve future orchestration.
+#
+# The objective is:
+#
+#     TASK
+#       ↓
+#     EXPERIENCE
+#       ↓
+#     LESSON
+#       ↓
+#     VALIDATION
+#       ↓
+#     KNOWLEDGE
+#       ↓
+#     BETTER FUTURE EXECUTION
+#
+# ============================================================
+# 118. IMPORTANT: IMPROVEMENT MUST BE MEASURABLE
+# ============================================================
+#
+# Never claim:
+#
+#     "The agent improved."
+#
+# without evidence.
+#
+# Improvement should ideally be demonstrated by:
+#
+#     fewer failures
+#     fewer iterations
+#     higher build success
+#     higher test success
+#     fewer regressions
+#     better requirement coverage
+#     better research accuracy
+#
+# ============================================================
+# 119. ENFORCER FINAL PRINCIPLE
+# ============================================================
+#
+# The Enforcer exists to make the entire August system progressively harder
+# to fool.
+#
+# Its fundamental rule:
+#
+#     CLAIMS REQUIRE EVIDENCE.
+#
+# Its second rule:
+#
+#     FAILURE MUST PRODUCE LEARNING.
+#
+# Its third rule:
+#
+#     LEARNING MUST BE VALIDATED BEFORE IT BECOMES KNOWLEDGE.
+#
+# Its fourth rule:
+#
+#     NO AGENT MAY MODIFY THE RULES THAT JUDGE ITS OWN SUCCESS.
+#
+# ============================================================
+# END OF SPECIFICATION.
